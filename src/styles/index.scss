@@ -1,0 +1,56 @@
+@import './menu.scss';
+@import './mixin.scss';
+@import './transition.scss';
+@import './table.scss';
+@import './pagination.scss';
+@import './search.scss';
+@import './dialog.scss';
+@import './button.scss';
+@import './input.scss';
+
+.main-container {
+  margin-left: 160px;
+  &.hideSide {
+    margin-left: 54px;
+  }
+}
+
+.zjy-header {
+  height: 60px;
+  line-height: 60px;
+  position: relative;
+  z-index: 999;
+}
+
+#nprogress .bar {
+  background: #37c6d4 !important; // position: fixed;
+  // z-index: 1031;
+  // top: 0;
+  // left: 0;
+  // width: 100%;
+  // height: 2px;
+}
+
+// router-link
+.spacer {
+  height: 20px;
+  background-color: #dddddd;
+  display: inline-block;
+  width: 1px;
+  vertical-align: text-bottom;
+  margin: 0 5px;
+}
+
+// breadcrumb
+.el-breadcrumb__inner a:hover, .el-breadcrumb__inner:hover {
+  color: #37c6d4;
+}
+
+// icon
+.zjy-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+}

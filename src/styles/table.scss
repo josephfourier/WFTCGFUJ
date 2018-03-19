@@ -1,0 +1,22 @@
+.zjy-table {
+  .el-table {
+      font-size: 12px;
+
+      th {
+          background-color: #eef1f5;
+          color: #222222;
+      }
+  }
+ .el-table td {
+      padding: 4px 0;
+      font-size: 11px;
+      color: #444;
+     .cell {
+         line-height: 20px;
+         padding: 6px;
+     }
+ }
+ .el-table th {
+     padding: 8px 0;
+ }
+}
