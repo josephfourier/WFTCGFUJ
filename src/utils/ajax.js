@@ -12,8 +12,11 @@ const ajax = axios.create({
 ajax.interceptors.request.use(config => {
   if (store.getters.token || getToken()) {
     config.headers['Zjy-Token'] = store.getters.token || getToken()
-    config.params = {
-      _t: new Date().getTime()
+
+    if (config.params) {
+      Object.assign(config.params, {
+        _t: new Date().getTime()
+      })
     }
   }
   return config
