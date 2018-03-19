@@ -20,6 +20,11 @@ router.beforeEach((to, from, next) => {
     return
   }
 
+  if (!getToken()) {
+    window.location.href = process.env.SSO_URL
+    return
+  }
+
   if (store.getters.accessed.length === 0) {
     store.dispatch('getAccessed').then(response => {
       store.dispatch('setRoutes', response).then(() => {
