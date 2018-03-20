@@ -1,6 +1,9 @@
 <!--  -->
 <template>
    <div class="sidebar-wrap" :class="{hideSide: isCollapse}">
+    <div class="logo">
+      <img src="./logo.png" alt="职教云logo">
+    </div>
     <el-menu 
       :default-active="$route.path" 
       class="zjy-el-menu" 
@@ -80,9 +83,11 @@ export default {
   position: fixed;
   left: 0;
   bottom: 0;
-  top: 60px;
+  top: 0;
   .zjy-el-menu {
     background-color: #1e2a3c;
+    position: relative;
+    top: 1px;
     @include menu-width;
     height: 100%;
     &.el-menu--collapse {
@@ -90,10 +95,10 @@ export default {
     }
   }
   .logo {
-    padding: 0 10px 0 10px;
-    height: 56px;
-    overflow: hidden;
-    box-shadow: 0px 0px 1px 0px #d7d9de
+    background-color: #1e2a3c;
+    width: 160px;
+    height: 59px;
+    box-shadow: 0 1px 0px 0px #26334b;
   }
   &.hideSide {
     @include menu-width-collapse;

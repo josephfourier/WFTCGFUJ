@@ -5,7 +5,6 @@ import { relogin, reback } from '@/utils'
 
 const ajax = axios.create({
   // timeout: 6000,
-  // 相当恶心的IE缓存
   baseURL: process.env.BASE_URL
 })
 
@@ -13,6 +12,7 @@ ajax.interceptors.request.use(config => {
   if (store.getters.token || getToken()) {
     config.headers['Zjy-Token'] = store.getters.token || getToken()
 
+    // 相当恶心的IE缓存
     if (config.params) {
       Object.assign(config.params, {
         _t: new Date().getTime()

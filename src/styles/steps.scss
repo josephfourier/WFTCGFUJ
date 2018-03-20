@@ -1,0 +1,72 @@
+.zjy-steps {
+  // 已完成流程
+  .el-step__head.is-finish {
+    .el-step__icon {
+      border:none;
+      background-color: #37c6d3;
+    }
+  }
+  // 进行中流程
+  .el-step__head.is-process {
+    .el-step__icon {
+      border:none;
+      background-color: #ed7734;
+    }
+  }
+  // 等待
+  .el-step__head.is-wait {
+    .el-step__icon {
+      border:none;
+      background-color: #c5dde0;
+    }
+  }
+
+  .el-step__title.is-wait {
+    color: #c0c4cc;
+  }
+  .el-step__title {
+    font-size: 12px;
+    color: #333333;
+    font-weight: normal;
+  }
+  .el-step__icon {
+    height: 30px;
+    width: 30px;
+    .el-step__icon-inner {
+      color: #ffffff;
+    }
+  }
+  .el-step__line {
+    background-color: #f5f5f5;
+  }
+  .el-step.is-horizontal .el-step__line{
+    height: 12px;
+    top: 10px;
+  }
+
+  .el-step__line-inner {
+    display: block;
+    border-width: 1px;
+    border-style: solid;
+    border: none;
+    background: #ddd;
+    -webkit-transition: .15s ease-out;
+    transition: .15s ease-out;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 0;
+    height: 10px;
+    position: relative;
+    top: 1px;
+  }
+
+  .el-step__description.is-finish {
+    color: #333333;
+  }
+
+  .el-step.is-center .el-step__description {
+    padding: 0;
+    width: 130px;
+    margin: 0 auto;
+  }
+}

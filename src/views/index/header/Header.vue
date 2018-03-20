@@ -1,9 +1,6 @@
 <!--  -->
 <template>
   <div class="zjy-header">
-    <div class="logo">
-      <img src="./logo.png" alt="职教云logo">
-    </div>
 
     <div class="wrapper">
       <div class="school">
@@ -36,21 +33,12 @@ export default {
 }
 </script>
 <style lang='scss' scoped>
-.logo {
-  background-color: #1e2a3c;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 160px;
-  height: 60px;
-  box-shadow: 0 1px 0px 0px #26334b;
-}
 .wrapper {
   position: absolute;
   line-height: 60px;
   top: 0;
   right: 0;
-  left: 160px;
+  left: 0;
   box-shadow: 0px 0px 8px 0px #d7d9de;
   .school {
     padding-left: 20px;

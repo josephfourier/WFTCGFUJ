@@ -42,8 +42,6 @@ let param2Obj = (url) => {
   return JSON.parse('{"' + decodeURIComponent(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}')
 }
 
-let hasPermission = (permission) => store.getters.permissions.indexOf(permission) !== -1
-
 let relogin = () => {
   MessageBox.alert('请重新登录', '登录失效', {
     confirmButtonText: '确定',
@@ -62,4 +60,4 @@ let reback = () => {
   })
 }
 
-export { resolve, relogin, reback }
+export { resolve, relogin, reback, param2Obj }

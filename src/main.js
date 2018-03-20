@@ -7,13 +7,18 @@ import store from './store'
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+
 // import './mock'
+
 import './router-interceptor'
 import '@/styles/index.scss'
 
 Vue.use(ElementUI)
 
 Vue.config.productionTip = false
+
+Vue.prototype.$empty = obj => Object.keys(obj).length === 0
+Vue.prototype.$hasPermission = permission => store.getters.permissions.indexOf(permission) !== -1
 
 /* eslint-disable no-new */
 new Vue({
