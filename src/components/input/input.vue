@@ -25,6 +25,7 @@
     <textarea 
       v-else
       class="zjy-textarea__inner"
+      v-bind="$props" 
       :value="currentValue"
       @input="handleInput"
       ref="textarea"
