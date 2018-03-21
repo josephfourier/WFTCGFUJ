@@ -72,17 +72,19 @@ export default {
               dataStatus: response.data.dataStatus
             }
             // 查询流程进度
-            cardAPI
-              .queryApprovalProcess(this.student.studentId, this.uid)
-              .then(response => {
-                console.log(response)
-              })
-              .catch(error => {
-                console.log(error)
-              })
           })
           .catch(error => {})
       }
+    },
+    student(val, oldVal) {
+      cardAPI
+        .queryApprovalProcess(this.student.studentId, this.uid)
+        .then(response => {
+          console.log(response)
+        })
+        .catch(error => {
+          console.log(error)
+        })
     }
   }
 }
