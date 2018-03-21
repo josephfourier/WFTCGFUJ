@@ -1,6 +1,6 @@
-<!-- 投保理赔管理 学生  -->
+<!-- 学生档案管理(教师) -->
 <template>
-  <div></div>
+  <div>这是学生档案管理</div>
 </template>
 
 <script>
@@ -9,7 +9,6 @@ export default {
     return {
     }
   }
-
 }
 
 </script>

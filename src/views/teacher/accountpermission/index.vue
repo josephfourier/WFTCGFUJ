@@ -1,5 +1,5 @@
 <template>
-    <div class="app-account">
+    <div class="zjy-app zjy-account">
         <AccountList
         :query="query">
           <zjy-search 
@@ -41,8 +41,7 @@ export default {
 }
 </script>
 <style lang="scss">
-.app-account {
-  padding: 10px 20px;
+.zjy-account {
 
   .zjy-table-search {
     margin-bottom: 10px;

@@ -9,6 +9,7 @@
 @import './input.scss';
 @import './steps.scss';
 @import './select.scss';
+@import './form.scss';
 
 .main-container {
   margin-left: 160px;
@@ -57,3 +58,21 @@
   vertical-align: middle;
   position: relative;
 }
+
+// 每个路由页面设置
+.zjy-app {
+  padding: 10px 20px;
+}
+
+.zjy-btn-view {
+  .zjy-icon {
+    background: url('../assets/images/zjy-icon-view.png') no-repeat 0 2px;
+  }
+}
+
+.zjy-btn-delete {
+  .zjy-icon {
+    background: url('../assets/images/zjy-icon-delete.png') no-repeat 0 0;
+  }
+}
+

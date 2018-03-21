@@ -1,6 +1,5 @@
 import Pager from './pager.vue'
 import ZjyInput from '@/components/input'
-// import Locale from 'element-ui/src/mixins/locale'
 
 export default {
   name: 'ZjyPagination',

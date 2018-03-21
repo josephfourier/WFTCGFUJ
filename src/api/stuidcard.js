@@ -46,5 +46,38 @@ export default {
         approvalStep: i.approvalStep
       }
     })
+  },
+  // ------------------------- 教师端 -------------------------
+  // 查询学生证列表
+  queryCardList (query) {
+    return ajax.get('/manage/teacher/swmsStuidcards', {
+      params: query,
+      transformResponse: data => {
+        const json = JSON.parse(data)
+        if (json.code !== 1) return json
+
+        const total = json.data.total
+        const rows = json.data.rows.map(item => {
+          return {
+            stuidcardUid: item.stuidcardUid,
+            studentNo: item.ucenterStudent.studentNo,
+            studentName: item.ucenterStudent.studentName,
+            facultyName: item.ucenterStudent.facultyName,
+            enterYear: item.ucenterStudent.enterYear,
+            appNum: item.appNum,
+            dataStatus: item.dataStatus
+          }
+        })
+
+        return {
+          total,
+          rows
+        }
+      }
+    })
+  },
+
+  queryOne (id) {
+    return ajax.get('/manage/teacher/swmsStuidcard/' + id)
   }
 }

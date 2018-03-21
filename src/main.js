@@ -20,6 +20,21 @@ Vue.config.productionTip = false
 Vue.prototype.$empty = obj => Object.keys(obj).length === 0
 Vue.prototype.$hasPermission = permission => store.getters.permissions.indexOf(permission) !== -1
 
+Vue.filter('statusFormat', val => ['待审批', '已通过', '已拒绝', '审批中'][+val])
+Vue.filter('dateFormat', val => {
+  if (!val) return
+  const date = new Date(val)
+  const m = date.getMonth() + 1
+  const d = date.getDate() + 1
+  return (
+    date.getFullYear() +
+    '-' +
+    (m < 10 ? '0' + m : m) +
+    '-' +
+    (d < 10 ? '0' + d : d)
+  )
+})
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

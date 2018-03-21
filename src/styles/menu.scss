@@ -13,6 +13,8 @@
 
   // 一级菜单项
   .el-menu-item {
+      height: 50px;
+      line-height: 50px;
       &:hover,&:focus {
           background-color: #26334b;
       }

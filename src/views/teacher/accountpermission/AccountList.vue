@@ -26,8 +26,8 @@
       <span slot="empty">{{ empty }}</span>
     </el-table>
     <div class="zjy-pagination" v-if="accountList.length !== 0">
-      <ZJYPagination :currentPage="currentPage" :total="total" :pageSize="limit" @current-change="currentChange">
-      </ZJYPagination>
+      <zjy-pagination :currentPage="currentPage" :total="total" :pageSize="limit" @current-change="currentChange">
+      </zjy-pagination>
     </div>
 
     <el-dialog title="权限范围" :visible.sync="dialogVisible" width="800px">
@@ -38,7 +38,7 @@
 
 <script>
 import accountAPI from '@/api/account'
-import ZJYPagination from '@/components/pagination'
+import ZjyPagination from '@/components/pagination'
 import ZJYList from '@/components/list'
 
 export default {
@@ -89,7 +89,7 @@ export default {
 
   created() {},
   components: {
-    ZJYPagination,
+    ZjyPagination,
     ZJYList
   },
 

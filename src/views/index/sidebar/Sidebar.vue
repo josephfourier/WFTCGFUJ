@@ -134,6 +134,10 @@ export default {
   background: url("./zjy-icon-statistical.png") no-repeat 0 0;
 }
 
+.zjy-icon-general {
+  background: url("./zjy-icon-general.png") no-repeat 0 0;
+}
+
 // 激活时变色，打开时不变色
 .el-submenu.is-active,
 .el-menu-item.is-active {
@@ -145,6 +149,9 @@ export default {
   }
   .zjy-icon-statistical {
     background: url("./zjy-icon-statistical1.png") no-repeat 0 0;
+  }
+  .zjy-icon-general {
+    background: url("./zjy-icon-general1.png") no-repeat 0 0;
   }
 }
 </style>

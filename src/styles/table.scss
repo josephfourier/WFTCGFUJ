@@ -8,7 +8,7 @@
       }
   }
  .el-table td {
-      padding: 4px 0;
+      padding: 4px 0 3px 0;
       font-size: 11px;
       color: #444;
      .cell {
@@ -18,5 +18,39 @@
  }
  .el-table th {
      padding: 8px 0;
+     &.el-table-column--selection {
+         padding-top: 7px;
+     }
+     .cell {
+        padding-left: 6px;
+     }
  }
+td.el-table-column--selection {
+    &.el-table_1_column_1 {
+     .cell {
+         padding: 3px 6px 6px 6px
+     }
+    }
+ }
+ .el-checkbox__inner {
+    width: 16px;
+    height: 16px;
+ }
+ .el-checkbox__inner::after {
+     left: 5px;
+     height: 9px;
+     width: 4px;
+ }
+ .el-checkbox__input.is-checked .el-checkbox__inner, 
+ .el-checkbox__input.is-indeterminate .el-checkbox__inner{
+    background-color: #37c6d4;
+    border-color: #37c6d4;
+ }
+ .el-checkbox__inner:hover {
+    border-color: #37c6d4;
+}
+
+.el-table th.el-table-column--selection>.cell {
+    text-overflow: clip;
+}
 }

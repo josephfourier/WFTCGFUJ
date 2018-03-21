@@ -192,26 +192,6 @@ export default {
         console.log(error)
       })
   },
-
-  filters: {
-    dateFormat(val) {
-      if (!val) return
-      const date = new Date(val)
-      const m = date.getMonth() + 1
-      const d = date.getDate() + 1
-      return (
-        date.getFullYear() +
-        '-' +
-        (m < 10 ? '0' + m : m) +
-        '-' +
-        (d < 10 ? '0' + d : d)
-      )
-    },
-
-    statusFormat(val) {
-      return ['待审批', '已通过', '已拒绝', '审批中'][+val]
-    }
-  }
 }
 </script>
 <style lang='scss'>
@@ -222,7 +202,6 @@ export default {
 }
 .zjy-form {
   .form-item {
-    display: inline-block;
     margin-right: 30px;
     margin-bottom: 10px;
     > span {
