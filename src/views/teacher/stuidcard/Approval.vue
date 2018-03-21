@@ -35,25 +35,63 @@
       <p class="title">申请原因</p>
       <p>{{ reissued.applyReason }}</p>
     </div>
-    <div class="steps">
-      审批进度
+
+    <div class="zjy-steps">
+      <span>审批进度</span>
+      <zjy-steps :active="step" align-center>
+        <zjy-step title="发起人" :description="'(' + student.studentName + ')'">
+        </zjy-step>
+        <zjy-step v-for="(item,index) in steps" :key="item.approvalStep" :title="item.postName" :custom="item">
+          <div slot="description">
+            <div v-if="item.approvalType == 2 || item.approvalStatus">
+              ({{ item.teacherName }})
+            </div>
+            <div v-else>
+              <!-- 当前流程动态绑定 -->
+              <p v-if="index === step - 1 && value">
+                ({{value}})
+              </p>
+              <!-- 其它只绑定一次,也可以不绑定(还未选择教师) -->
+              <!-- <span v-else v-once>({{ value }})</span> -->
+            </div>
+            <!--  -->
+            <div v-if="index <= step - 1 && item.approvalStatus">
+              <p class="status">
+                ({{ item.approvalStatus | statusFormat }})
+              </p>
+            </div>
+          </div>
+          <!-- 只初始化当前流程的教师列表 (index === step - 1) -->
+          <!-- 对于学生只初始化第一步 (index = 0) -->
+          <!-- 若存在流程状态属性则不初始化 (approvalStatus)-->
+
+        </zjy-step>
+      </zjy-steps>
     </div>
   </div>
 </template>
 
 <script>
 import cardAPI from "@/api/stuidcard"
+import { ZjyStep, ZjySteps } from "@/components/steps"
 
 export default {
   data() {
     return {
       reissued: {},
-      student: {}
+      student: {},
+      steps: [],
+      step: 1
     }
   },
 
   props: {
     uid: String
+  },
+
+  components: {
+    ZjyStep,
+    ZjySteps
   },
 
   watch: {
@@ -76,15 +114,19 @@ export default {
           .catch(error => {})
       }
     },
-    student(val, oldVal) {
-      cardAPI
-        .queryApprovalProcess(this.student.studentId, this.uid)
-        .then(response => {
-          console.log(response)
-        })
-        .catch(error => {
-          console.log(error)
-        })
+    student: {
+      deep: true,
+      handler(val) {
+        alert(1)
+        cardAPI
+          .queryApprovalProcess(this.student.studentId, this.uid)
+          .then(response => {
+            this.steps = response.data.swmsApprovals
+          })
+          .catch(error => {
+            console.log(error)
+          })
+      }
     }
   }
 }
