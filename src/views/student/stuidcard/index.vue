@@ -69,7 +69,7 @@
             placeholder="请选择审批人" 
             slot="custom" 
             slot-scope="props" 
-            v-if="props.data.approvalType === '1' && index === 0 && !props.data.approvalStatus" 
+            v-if="props.data.approvalType == 1 && index === 0 && !props.data.approvalStatus" 
           >
             <el-option 
               v-for="item in approverList" 
@@ -108,8 +108,7 @@ export default {
       step: 1, // 进行中的流程步骤
       approverList: {}, // 审批人员
       steps: [], // 流程模板数据
-      value: null,
-      stepStatus: [] // 每步的审批状态
+      value: '',
     }
   },
 
@@ -180,10 +179,7 @@ export default {
               this.steps = response.data.swmsApprovals.sort((x,y) => x.approvalStep - y.approvalStep)
               // 获取流程进度,取审批状态为0(未审批)的步骤序号
               this.step = this.steps.find(x => x.approvalStatus == 0).approvalStep
-              this.stepStatus = cardAPI.queryApprovalStep(
-                response.data.swmsApprovals
-              )
-              this.step = stepStatus.approvalStep
+              
             })
             .catch(error => {})
         }

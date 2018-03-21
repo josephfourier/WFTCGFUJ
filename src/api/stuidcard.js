@@ -47,6 +47,7 @@ export default {
       }
     })
   },
+
   // ------------------------- 教师端 -------------------------
   // 查询学生证列表
   queryCardList (query) {
@@ -79,5 +80,24 @@ export default {
 
   queryOne (id) {
     return ajax.get('/manage/teacher/swmsStuidcard/' + id)
+  },
+
+  // 提交审批通过
+  approved (reissued, steps) {
+    console.log(reissued)
+    console.log(steps)
+    return ajax({
+      url: '/manage/teacher/swmsStuidcard',
+      method: 'put',
+      data: {
+        stuidcardUid: reissued.stuidcardUid,
+        studentId: reissued.studentId,
+        applyDate: reissued.applyDate,
+        applyYear: reissued.applyYear,
+        applyReason: reissued.applyReason,
+        dataStatus: reissued.dataStatus,
+        swmsApprovalList: steps
+      }
+    })
   }
 }

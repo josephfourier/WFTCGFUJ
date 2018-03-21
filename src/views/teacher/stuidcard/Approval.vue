@@ -41,7 +41,12 @@
       <zjy-steps :active="step" align-center>
         <zjy-step title="发起人" :description="'(' + student.studentName + ')'">
         </zjy-step>
-        <zjy-step v-for="(item,index) in steps" :key="item.approvalStep" :title="item.postName" :custom="item">
+        <zjy-step 
+        v-for="(item,index) in steps" 
+        :key="item.approvalStep" 
+        :title="item.postName" 
+        :custom="item"
+        >
           <div slot="description">
             <div v-if="item.approvalType == 2 || item.approvalStatus">
               ({{ item.teacherName }})
@@ -62,71 +67,179 @@
             </div>
           </div>
           <!-- 只初始化当前流程的教师列表 (index === step - 1) -->
-          <!-- 对于学生只初始化第一步 (index = 0) -->
-          <!-- 若存在流程状态属性则不初始化 (approvalStatus)-->
-
+          <!-- 若存在流程状态属性则不初始化 (approvalStatus) -->
+          <el-select 
+            class="zjy-select" 
+            v-model="value" 
+            placeholder="请选择审批人" 
+            slot="custom" 
+            slot-scope="props" 
+            v-if="props.data.approvalType == 1 && index === step - 1 && !props.data.approvalStatus && approved" 
+          >
+            <el-option 
+              v-for="item in approverList" 
+              :key="item.teacherId" 
+              :label="item.teacherName" 
+              :value="item.teacherName"
+            >
+            </el-option>
+          </el-select>
         </zjy-step>
       </zjy-steps>
     </div>
+    <div class="zjy-footer">
+      <template v-if="!approved">
+        <zjy-button type="plain" @click="no">拒 绝</zjy-button>
+        <zjy-button type="primary" @click="yes">同 意</zjy-button>
+      </template>
+      <zjy-button v-else type="primary" @click="submit">提 交</zjy-button>
+    </div>
+
+    <el-dialog
+      width="30%"
+      title="请输入拒绝原因"
+      :visible.sync="innerVisible"
+      append-to-body>
+      <zjy-input type="textarea"></zjy-input>
+      <div class="zjy-footer">
+        <zjy-button type="plain" @click="innerNo">拒 绝</zjy-button>
+        <zjy-button type="primary" @click="innerYes">同 意</zjy-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import cardAPI from "@/api/stuidcard"
+import ZjyInput from '@/components/input'
 import { ZjyStep, ZjySteps } from "@/components/steps"
-
+import ZjyButton from "@/components/button"
+// approvalStatus 0:待审批, 1:已通过，2:已拒绝
+const STATUS = {
+  awaiting: '0',
+  yes: '1',
+  no: '2'
+}
 export default {
   data() {
     return {
       reissued: {},
       student: {},
       steps: [],
+      value: '',
+      innerVisible:false,
+      approved: false,  // 是否同意该申请
+      approverList: {}, // 下一步审批人列表
       step: 1
     }
   },
 
+  methods: {
+    no(){
+      this.innerVisible = true
+      this.steps[this.step-1].approvalStatus = STATUS.no
+    },
+
+    yes() {
+      this.steps[this.step-1].approvalStatus = STATUS.yes
+      this.approved = true
+      // cardAPI.approved(this.reissued, this.steps)
+
+    },
+    innerNo() {
+
+    },
+
+    innerYes() {
+
+    },
+
+    submit() {
+      if (!this.value && !this.$empty(this.approverList)) {
+        this.$alert('请选择下一步审批人')
+        return
+      }
+
+      cardAPI.approved(this.reissued, this.steps).then(response => {
+        if (response.code === 1) {
+          this.$alert('保存成功')
+          this.$emit('submit', 0)
+        } else {
+          this.$alert('保存失败')
+          this.$emit('submit', 1)
+        }
+      }).catch(error => {
+
+      })
+    },
+    // 关闭时清空各个状态
+    clear() {
+      this.approved = false
+      this.value = ''
+    }
+  },
+
   props: {
-    uid: String
+    uid: String,
+    closed: Boolean // 当前弹窗关闭状态
   },
 
   components: {
     ZjyStep,
-    ZjySteps
+    ZjySteps,
+    ZjyButton,
+    ZjyInput
   },
 
   watch: {
     uid: {
       immediate: true,
       handler(val) {
+        if (val == '') return
         cardAPI
           .queryOne(val)
           .then(response => {
             this.student = response.data.ucenterStudent
             this.reissued = {
+              stuidcardUid: response.data.stuidcardUid,
               applyDate: response.data.applyDate,
               applyReason: response.data.applyReason,
               applyYear: response.data.applyYear,
               studentId: response.data.studentId,
               dataStatus: response.data.dataStatus
             }
-            // 查询流程进度
           })
           .catch(error => {})
       }
     },
+    // 查询流程进度
     student: {
       deep: true,
       handler(val) {
-        alert(1)
         cardAPI
           .queryApprovalProcess(this.student.studentId, this.uid)
           .then(response => {
-            this.steps = response.data.swmsApprovals
+            this.steps = response.data.swmsApprovals.sort((x,y) => x.approvalStep - y.approvalStep)
+            // 查找审批状态为0的审批步骤序号(已排序)
+            this.step = this.steps.find(x => x.approvalStatus == 0).approvalStep
+            // 如果下一步需要设置教师则初始化
+            this.approverList = response.data[Object.keys(response.data).filter(x => Number(x) == x)]
           })
           .catch(error => {
             console.log(error)
           })
       }
+    },
+
+    approved(val) {
+      if (val) this.step++
+      else this.step--
+    }, 
+
+    closed(val) {
+      if (val) { 
+        this.clear()
+      } 
     }
   }
 }

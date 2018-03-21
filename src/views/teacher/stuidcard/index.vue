@@ -43,11 +43,9 @@
     <el-dialog title="学生证补办审批" :visible.sync="visible" width="800px">
       <zjy-approval
         :uid="uid"
+        :closed="!visible"
+        @submit="handleSubmit"
       ></zjy-approval>
-      <div slot="footer" class="dialog-footer">
-        <zjy-button type="plain">拒绝</zjy-button>
-        <zjy-button type="primary">同 意</zjy-button>
-      </div>
     </el-dialog>
   </div>
 </template>
@@ -55,7 +53,6 @@
 <script>
 import cardAPI from "@/api/stuidcard"
 import ZjyPagination from "@/components/pagination"
-import ZjyButton from "@/components/button"
 import ZjyApproval from './Approval'
 
 export default {
@@ -76,10 +73,22 @@ export default {
       }
     }
   },
+
   methods: {
     view(row) {
-      this.visible = true
       this.uid = row.stuidcardUid
+      this.visible = true
+    },
+
+    // approval组件提交请求后关闭弹窗
+    handleSubmit(error) {
+      this.visible = false
+      // 如果是正常提交数据则需要刷新
+      if (!error) {
+        const old = this.currentPage
+        this.currentPage = -1
+        setTimeout(() => this.currentPage = old, 300)
+      }
     },
 
     del() {},
@@ -93,6 +102,7 @@ export default {
         textAlign: "center"
       }
     },
+
     statusFormat(row, column, cellValue) {
       return ["待审批", "已通过", "已拒绝", "审批中"][+cellValue]
     }
@@ -100,7 +110,6 @@ export default {
 
   components: {
     ZjyPagination,
-    ZjyButton,
     ZjyApproval
   },
 
@@ -108,6 +117,7 @@ export default {
     currentPage: {
       immediate: true,
       handler(val, oldval) {
+        if (val === -1) return
         this.query.offset = this.query.limit * (val - 1)
         cardAPI
           .queryCardList(this.query)
@@ -117,6 +127,10 @@ export default {
           })
           .catch(err => {})
       }
+    },
+
+    visible(val) {
+      if (!val) this.uid = ''
     }
   }
 }
