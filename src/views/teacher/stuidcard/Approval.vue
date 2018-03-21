@@ -72,9 +72,8 @@ export default {
               dataStatus: response.data.dataStatus
             }
             // 查询流程进度
-            alert(1)
             cardAPI
-              .queryApprovalProcess(this.reissued.studentId, uid)
+              .queryApprovalProcess(this.student.studentId, this.uid)
               .then(response => {
                 console.log(response)
               })
