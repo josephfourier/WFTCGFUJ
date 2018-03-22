@@ -9,7 +9,7 @@
         <span>学工系统</span>
       </div>
 
-      <el-dropdown trigger="click" class="user-info">
+      <el-dropdown class="user-info">
         <span class="el-dropdown-link">
           <i class="zjy-icon zjy-icon-user"></i>
           <span>{{ user.fullName }}</span>
@@ -20,7 +20,6 @@
           <el-dropdown-item>退出系统</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-
     </div>
   </div>
 </template>

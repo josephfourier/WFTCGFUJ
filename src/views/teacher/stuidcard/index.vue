@@ -2,7 +2,14 @@
 <template>
   <div class="zjy-app zjy-card">
     <div class="zjy-table">
-      <el-table :data="cardList" style="width: 100%" :row-style="rowStyle" :header-row-style="rowStyle" :header-cell-style="rowStyle">
+      <el-table 
+        :data="cardList" 
+        style="width: 100%" 
+        :row-style="rowStyle" 
+        :header-row-style="rowStyle" 
+        :header-cell-style="rowStyle"
+        v-loading="loading"
+      >
         <el-table-column type="selection" width="30">
         </el-table-column>
         <el-table-column type="index" label="序号" :index="1" width="45">
@@ -108,6 +115,12 @@ export default {
   components: {
     ZjyPagination,
     ZjyApproval
+  },
+
+  computed: {
+    loading () {
+      return this.cardList.length === 0
+    }
   },
 
   watch: {

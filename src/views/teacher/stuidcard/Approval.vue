@@ -250,6 +250,7 @@ export default {
               if (_) {
                 this.step = _.approvalStep
                 this.reason = _.approvalOpinion
+                this.isCompleted = true
                 return
               }
 
@@ -259,20 +260,9 @@ export default {
 
 
             // 下一步需要设置教师则初始化
-            this.approverList =
-              response.data[
-                Object.keys(response.data).filter(x => Number(x) == x)
-              ]
+            this.approverList = response.data[Object.keys(response.data).filter(x => Number(x) == x)]
 
-            this.steps.forEach(x => {
-              if (
-                !x.approvalStatus ||
-                (x.approvalStatus && x.approvalStatus != 1)
-              ) {
-                this.isCompleted = false
-                return
-              }
-            })
+            this.isCompleted = this.steps.every(x => x.approvalStatus && x.approvalStatus == 1) || this.steps.some(x => x.approvalStatus && x.approvalStatus == 2)
           })
           .catch(error => {
             console.log(error)

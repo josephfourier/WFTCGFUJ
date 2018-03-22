@@ -1,7 +1,7 @@
 <template>
   <div class="zjy-table">
     <slot></slot>
-    <el-table :data="accountList" style="width: 100%">
+    <el-table :data="accountList" style="width: 100%" v-loading="loading">
       <el-table-column type="index" label="序号" :index="1" width="100">
       </el-table-column>
       <el-table-column prop="username" label="账号" width="150">
@@ -87,7 +87,11 @@ export default {
     }
   },
 
-  created() {},
+  computed: {
+    loading() {
+      return this.accountList.length === 0
+    }
+  },
   components: {
     ZjyPagination,
     ZJYList

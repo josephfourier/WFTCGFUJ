@@ -32,7 +32,7 @@
       </div>
       <div class="form-item block">
         <span>申请原因:</span>
-        <zjy-input type="textarea" v-model="reissued.applyReason" :disabled="false"></zjy-input>
+        <zjy-input type="textarea" v-model="reissued.applyReason" :disabled="!isCompleted && step !== 1"></zjy-input>
       </div>
     </div>
     <div v-if="steps.length !== 0">
@@ -88,12 +88,11 @@
 </template>
 
 <script>
-import axios from "axios"
-import cardAPI from "@/api/stuidcard"
-import ZjyInput from "@/components/input"
-import ZjyButton from "@/components/button"
-
-import { ZjyStep, ZjySteps } from "@/components/steps"
+import axios from 'axios'
+import cardAPI from '@/api/stuidcard'
+import ZjyInput from '@/components/input'
+import ZjyButton from '@/components/button'
+import { ZjyStep, ZjySteps } from '@/components/steps'
 
 export default {
   data() {
@@ -103,23 +102,27 @@ export default {
       step: 1, // 进行中的流程步骤
       approverList: {}, // 审批人员
       steps: [], // 流程模板数据
-      value: "",
-      nextTeacherName: "",
-      nextTeacherId: "",
-      isReapply: true,
-      isCompleted: true,
-      empty: "流程加载中..."
+      value: '',
+      nextTeacherName: '',
+      nextTeacherId: '',
+      isCompleted: false,
+      isReapplyed: false,
+      empty: '流程加载中...'
     }
   },
 
   methods: {
+    handleChange() {
+      console.log(arguments)
+    },
+
     submit() {
       if (!this.reissued.applyReason) {
-        this.$alert("请填写申请原因")
+        this.$alert('请填写申请原因')
         return
       }
       if (!this.value && this.approverList) {
-        this.$alert("请填写审批人")
+        this.$alert('请填写审批人')
         return
       }
 
@@ -132,8 +135,10 @@ export default {
       cardAPI
         .createApproval(this.reissued, this.steps)
         .then(response => {
-          const msg = response.code === 1 ? "保存成功" : response.message
+          const msg = response.code === 1 ? '保存成功' : response.message
           this.$alert(msg)
+
+          this.refresh()
         })
         .catch(error => {
           console.log(error)
@@ -141,11 +146,11 @@ export default {
     },
 
     reSubmit() {
+      this.isReapplyed = true
       this.clear()
-      this.isReapply = false
       this.reissued = {
-        studentId: this.student.studentId || "",
-        applyReason: ""
+        studentId: this.student.studentId || '',
+        applyReason: ''
       }
       // 查询初始流程信息
       cardAPI
@@ -168,8 +173,49 @@ export default {
     clear() {
       this.reissued = {}
       this.step = 1
-      this.value = ""
+      this.value = ''
       this.isCompleted = false
+    },
+
+    refresh() {
+      cardAPI
+        .queryReissued()
+        .then(response => {
+          this.reissued = response.data.swmsStuidcard
+          cardAPI
+            .queryApprovalProcess(
+              this.student.studentId,
+              this.reissued.stuidcardUid
+            )
+            .then(response => {
+              this.steps = response.data.swmsApprovals.sort(
+                (x, y) => x.approvalStep - y.approvalStep
+              )
+              // 获取流程进度,取审批状态为0(未审批)的步骤序号
+              try {
+                this.step = this.steps.find(
+                  x => x.approvalStatus == 0
+                ).approvalStep
+              } catch (e) {
+                const _ = this.steps.find(x => x.approvalStatus == 2)
+                if (_) {
+                  this.step = _.approvalStep
+                  this.isCompleted = true
+                  return
+                }
+                this.step = this.steps.length + 1
+              }
+              this.isCompleted =
+                this.steps.every(
+                  x => x.approvalStatus && x.approvalStatus == 1
+                ) ||
+                this.steps.some(x => x.approvalStatus && x.approvalStatus == 2)
+            })
+            .catch(error => {})
+        })
+        .catch(error => {
+          console.log(error)
+        })
     },
 
     handleChange(val) {
@@ -198,17 +244,18 @@ export default {
         // 未曾申请过补办
         if (!response.data.swmsStuidcard) {
           this.reissued = {
-            studentId: this.student.studentId || "",
-            applyReason: ""
+            studentId: this.student.studentId || '',
+            applyReason: ''
           }
           // 查询初始流程信息
           cardAPI
             .queryInitial(150)
             .then(response => {
               if (!response.data.swmsApprovals) {
-                this.empty = "还未配置流程"
+                this.empty = '还未配置流程'
                 return
               }
+
               this.steps = response.data.swmsApprovals.sort(
                 (x, y) => x.approvalStep - y.approvalStep
               )
@@ -246,20 +293,16 @@ export default {
                 const _ = this.steps.find(x => x.approvalStatus == 2)
                 if (_) {
                   this.step = _.approvalStep
+                  this.isCompleted = true
                   return
                 }
                 this.step = this.steps.length + 1
               }
-
-              this.steps.forEach(x => {
-                if (
-                  !x.approvalStatus ||
-                  (x.approvalStatus && x.approvalStatus != 1)
-                ) {
-                  this.isCompleted = false
-                  return
-                }
-              })
+              this.isCompleted =
+                this.steps.every(
+                  x => x.approvalStatus && x.approvalStatus == 1
+                ) ||
+                this.steps.some(x => x.approvalStatus && x.approvalStatus == 2)
             })
             .catch(error => {})
         }
@@ -272,7 +315,7 @@ export default {
   watch: {}
 }
 </script>
-<style lang='scss'>
+<style lang='scss' scoped>
 .stuidcard {
   font-size: 12px;
   color: #333333;
