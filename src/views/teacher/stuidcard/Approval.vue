@@ -132,7 +132,6 @@ export default {
     yes() {
       this.steps[this.step - 1].approvalStatus = STATUS.yes
       this.approved = true
-      // cardAPI.approved(this.reissued, this.steps)
     },
     innerNo() {
       this.innerVisible = false
@@ -258,7 +257,6 @@ export default {
               this.step = this.steps.length + 1
             }
 
-            // console.log(this.isCurrentTeacher = this.currentStep.teacherId === this.$store.getters.user.userDetailId)
 
             // 下一步需要设置教师则初始化
             this.approverList =
