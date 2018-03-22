@@ -4,7 +4,7 @@
 
     <div class="wrapper">
       <div class="school">
-        <span>固原民族职业技术学校</span>
+        <span>{{ user.schoolName }}</span>
         <span class="spacer"></span>
         <span>学工系统</span>
       </div>
@@ -12,7 +12,7 @@
       <el-dropdown trigger="click" class="user-info">
         <span class="el-dropdown-link">
           <i class="zjy-icon zjy-icon-user"></i>
-          <span>职教云用户</span>
+          <span>{{ user.fullName }}</span>
           <i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
@@ -26,9 +26,15 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   data() {
     return {}
+  },
+
+  computed: {
+    ...mapGetters(['user'])
   }
 }
 </script>

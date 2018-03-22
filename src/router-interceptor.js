@@ -27,8 +27,9 @@ router.beforeEach((to, from, next) => {
 
   if (store.getters.accessed.length === 0) {
     store.dispatch('getAccessed').then(response => {
-      store.dispatch('setRoutes', response).then(() => {
+      store.dispatch('setRoutes', response.appPerms).then(() => {
         router.addRoutes(store.getters.routes)
+        store.dispatch('setUser', response.baseInfo)
         next({ ...to, replace: true })
         NProgress.done()
       }).catch(error => {

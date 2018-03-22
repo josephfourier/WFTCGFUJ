@@ -3,15 +3,18 @@ import userAPI from '@/api/user'
 import * as types from '../mutation-types'
 
 const state = {
-  user: '', // 用户名
+  fullName: '', // 用户名
   token: getToken(),
   accessed: [], // 权限信息
-  school: '' // 学校名
+  schoolName: '', // 学校名
+  userDetailId: ''
 }
 
 const mutations = {
-  [types.SET_USER] (state, user) {
-    state.user = user
+  [types.SET_USER] (state, { fullName, schoolName, userDetailId }) {
+    state.fullName = fullName
+    state.schoolName = schoolName
+    state.userDetailId = userDetailId
   },
 
   [types.SET_TOKEN] (state, token) {
@@ -41,6 +44,10 @@ const actions = {
 
   setToken ({ commit }, token) {
     commit(types.SET_TOKEN, token)
+  },
+
+  setUser ({ commit }, user) {
+    commit(types.SET_USER, user)
   }
 }
 

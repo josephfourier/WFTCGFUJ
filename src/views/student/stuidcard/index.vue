@@ -32,73 +32,68 @@
       </div>
       <div class="form-item block">
         <span>申请原因:</span>
-        <zjy-input type="textarea" v-model="reissued.applyReason" :disabled="!!reissued.stuidcardUid"></zjy-input>
+        <zjy-input type="textarea" v-model="reissued.applyReason" :disabled="false"></zjy-input>
       </div>
     </div>
-    <div class="zjy-steps">
-      <span>申请流程配置</span>
-      <zjy-steps :active="step" align-center>
-        <zjy-step title="发起人" :description="'(' + student.studentName + ')'">
-        </zjy-step>
-        <zjy-step v-for="(item,index) in steps" :key="item.approvalStep" :title="item.postName" :custom="item">
-          <div slot="description">
-            <div v-if="item.approvalType == 2 || item.approvalStatus">
-              ({{ item.teacherName }})
+    <div v-if="steps.length !== 0">
+      <div class="zjy-steps">
+        <span>申请流程配置</span>
+        <zjy-steps :active="step" align-center>
+          <zjy-step title="发起人" :description="'(' + student.studentName + ')'" v-if="steps.length !== 0">
+          </zjy-step>
+          <zjy-step v-for="(item,index) in steps" :key="item.approvalStep" :title="item.postName" :custom="item">
+            <div slot="description">
+              <div v-if="item.approvalType == 2 || item.approvalStatus">
+                ({{ item.teacherName }})
+              </div>
+              <div v-else>
+                <!-- 当前流程动态绑定 -->
+                <p v-if="index === step - 1 && value">
+                  ({{ nextTeacherName }})
+                </p>
+                <!-- 其它只绑定一次,也可以不绑定(还未选择教师) -->
+                <!-- <span v-else v-once>({{ value }})</span> -->
+              </div>
+              <!--  -->
+              <div v-if="index <= step - 1 && item.approvalStatus">
+                <p class="status">
+                  ({{ item.approvalStatus | statusFormat }})
+                </p>
+              </div>
             </div>
-            <div v-else>
-              <!-- 当前流程动态绑定 -->
-              <p v-if="index === step - 1 && value">
-                ({{value}})
-              </p>
-              <!-- 其它只绑定一次,也可以不绑定(还未选择教师) -->
-              <!-- <span v-else v-once>({{ value }})</span> -->
-            </div>
-            <!--  -->
-            <div v-if="index <= step - 1 && item.approvalStatus">
-              <p class="status">
-                ({{ item.approvalStatus | statusFormat }})
-              </p>
-            </div>
-          </div>
-          <!-- 只初始化当前流程的教师列表 (index === step - 1) -->
-          <!-- 对于学生只初始化第一步 (index = 0) -->
-          <!-- 若存在流程状态属性则不初始化 (approvalStatus)-->
-          <el-select 
-            class="zjy-select" 
-            v-model="value" 
-            placeholder="请选择审批人" 
-            slot="custom" 
-            slot-scope="props" 
-            v-if="props.data.approvalType == 1 && index === 0 && !props.data.approvalStatus" 
-          >
-            <el-option 
-              v-for="item in approverList" 
-              :key="item.teacherId" 
-              :label="item.teacherName" 
-              :value="item.teacherName"
-            >
-            </el-option>
-          </el-select>
-        </zjy-step>
-      </zjy-steps>
-    </div>
+            <!-- 只初始化当前流程的教师列表 (index === step - 1) -->
+            <!-- 对于学生只初始化第一步 (index = 0) -->
+            <!-- 若存在流程状态属性则不初始化 (approvalStatus)-->
+            <el-select class="zjy-select" v-model="value" placeholder="请选择审批人" slot="custom" slot-scope="props" ref="sl" @change="handleChange" v-if="props.data.approvalType == 1 && index === 0 && !props.data.approvalStatus">
+              <el-option v-for="item in approverList" :key="item.teacherId" :label="item.teacherName" :value="item.teacherId">
+              </el-option>
+            </el-select>
+          </zjy-step>
+        </zjy-steps>
+      </div>
 
-    <div class="zjy-btn-group">
-      <zjy-button :type="reissued.stuidcardUid ? 'plain' : 'primary'" :disabled="!!reissued.stuidcardUid" @click="submit">
-        <template v-if="reissued.stuidcardUid">申请审核中</template>
-        <template v-else>申请</template>
-      </zjy-button>
+      <div class="zjy-btn-group">
+        <zjy-button v-if="!isCompleted" :type="reissued.stuidcardUid ? 'plain' : 'primary'" :disabled="!!reissued.stuidcardUid" @click="submit">
+          <template v-if="reissued.stuidcardUid">申请审核中</template>
+          <template v-else>申请</template>
+        </zjy-button>
+
+        <zjy-button v-else type="primary" @click="reSubmit">重新申请</zjy-button>
+      </div>
+    </div>
+    <div v-else>
+      {{ empty }}
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-import cardAPI from '@/api/stuidcard'
-import ZjyInput from '@/components/input'
-import ZjyButton from '@/components/button'
+import axios from "axios"
+import cardAPI from "@/api/stuidcard"
+import ZjyInput from "@/components/input"
+import ZjyButton from "@/components/button"
 
-import { ZjyStep, ZjySteps } from '@/components/steps'
+import { ZjyStep, ZjySteps } from "@/components/steps"
 
 export default {
   data() {
@@ -108,30 +103,81 @@ export default {
       step: 1, // 进行中的流程步骤
       approverList: {}, // 审批人员
       steps: [], // 流程模板数据
-      value: '',
+      value: "",
+      nextTeacherName: "",
+      nextTeacherId: "",
+      isReapply: true,
+      isCompleted: true,
+      empty: "流程加载中..."
     }
   },
 
   methods: {
     submit() {
       if (!this.reissued.applyReason) {
-        this.$alert('请填写申请原因')
+        this.$alert("请填写申请原因")
         return
       }
       if (!this.value && this.approverList) {
-        this.$alert('请填写审批人')
+        this.$alert("请填写审批人")
         return
+      }
+
+      const _ = this.steps.find(x => x.approvalStep == this.step)
+      if (_ && _.approvalType == 1) {
+        _.teacherId = this.nextTeacherId
+        _.teacherName = this.nextTeacherName
       }
 
       cardAPI
         .createApproval(this.reissued, this.steps)
         .then(response => {
-          const msg = response.code === 1 ? '保存成功' : response.message
+          const msg = response.code === 1 ? "保存成功" : response.message
           this.$alert(msg)
         })
         .catch(error => {
           console.log(error)
         })
+    },
+
+    reSubmit() {
+      this.clear()
+      this.isReapply = false
+      this.reissued = {
+        studentId: this.student.studentId || "",
+        applyReason: ""
+      }
+      // 查询初始流程信息
+      cardAPI
+        .queryInitial(150)
+        .then(response => {
+          this.steps = response.data.swmsApprovals.sort(
+            (x, y) => x.approvalStep - y.approvalStep
+          )
+          this.step = 1
+          this.approverList =
+            response.data[
+              Object.keys(response.data).filter(x => Number(x) == x)
+            ]
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+
+    clear() {
+      this.reissued = {}
+      this.step = 1
+      this.value = ""
+      this.isCompleted = false
+    },
+
+    handleChange(val) {
+      this.nextTeacherId = val
+      if (!this.$empty(this.approverList))
+        this.nextTeacherName = this.approverList.find(
+          x => x.teacherId === val
+        ).teacherName
     }
   },
 
@@ -152,17 +198,29 @@ export default {
         // 未曾申请过补办
         if (!response.data.swmsStuidcard) {
           this.reissued = {
-            studentId: this.student.studentId || '',
-            applyReason: ''
+            studentId: this.student.studentId || "",
+            applyReason: ""
           }
           // 查询初始流程信息
           cardAPI
             .queryInitial(150)
             .then(response => {
-              this.steps = response.data.swmsApprovals.sort((x,y) => x.approvalStep - y.approvalStep)
+              if (!response.data.swmsApprovals) {
+                this.empty = "还未配置流程"
+                return
+              }
+              this.steps = response.data.swmsApprovals.sort(
+                (x, y) => x.approvalStep - y.approvalStep
+              )
+
               this.step = 1
+
               // 如果第一步是职务则初始化教师信息
-              this.approverList = response.data[Object.keys(response.data).filter(x => Number(x) == x)]
+              this.approverList =
+                response.data[
+                  Object.keys(response.data).filter(x => Number(x) == x)
+                ]
+              this.isCompleted = false
             })
             .catch(error => {
               console.log(error)
@@ -176,10 +234,32 @@ export default {
               this.reissued.stuidcardUid
             )
             .then(response => {
-              this.steps = response.data.swmsApprovals.sort((x,y) => x.approvalStep - y.approvalStep)
+              this.steps = response.data.swmsApprovals.sort(
+                (x, y) => x.approvalStep - y.approvalStep
+              )
               // 获取流程进度,取审批状态为0(未审批)的步骤序号
-              this.step = this.steps.find(x => x.approvalStatus == 0).approvalStep
-              
+              try {
+                this.step = this.steps.find(
+                  x => x.approvalStatus == 0
+                ).approvalStep
+              } catch (e) {
+                const _ = this.steps.find(x => x.approvalStatus == 2)
+                if (_) {
+                  this.step = _.approvalStep
+                  return
+                }
+                this.step = this.steps.length + 1
+              }
+
+              this.steps.forEach(x => {
+                if (
+                  !x.approvalStatus ||
+                  (x.approvalStatus && x.approvalStatus != 1)
+                ) {
+                  this.isCompleted = false
+                  return
+                }
+              })
             })
             .catch(error => {})
         }
@@ -188,6 +268,8 @@ export default {
         console.log(error)
       })
   },
+
+  watch: {}
 }
 </script>
 <style lang='scss'>

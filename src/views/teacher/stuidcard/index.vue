@@ -33,7 +33,7 @@
           </template>
         </el-table-column>
 
-        <!-- <span slot="empty">{{ empty }}</span> -->
+        <span slot="empty">{{ empty }}</span>
       </el-table>
     </div>
     <div class="zjy-pagination" v-if="cardList.length !== 0">
@@ -41,11 +41,7 @@
       </zjy-pagination>
     </div>
     <el-dialog title="学生证补办审批" :visible.sync="visible" width="800px">
-      <zjy-approval
-        :uid="uid"
-        :closed="!visible"
-        @submit="handleSubmit"
-      ></zjy-approval>
+      <zjy-approval :uid="uid" :closed="!visible" @submit="handleSubmit"></zjy-approval>
     </el-dialog>
   </div>
 </template>
@@ -53,7 +49,7 @@
 <script>
 import cardAPI from "@/api/stuidcard"
 import ZjyPagination from "@/components/pagination"
-import ZjyApproval from './Approval'
+import ZjyApproval from "./Approval"
 
 export default {
   data() {
@@ -63,14 +59,15 @@ export default {
       total: 0,
       currentPage: 1,
       visible: false,
-      uid: '', // 当前查看补办信息的id
+      uid: "", // 当前查看补办信息的id
       query: {
         offset: 0,
         limit: 10,
         dataStatus: "", //0:待审批, 1:已通过, 2:已拒绝, 3:审批中
         enterYear: "",
         studentCode: ""
-      }
+      },
+      empty: '数据加载中....'
     }
   },
 
@@ -87,7 +84,7 @@ export default {
       if (!error) {
         const old = this.currentPage
         this.currentPage = -1
-        setTimeout(() => this.currentPage = old, 300)
+        setTimeout(() => (this.currentPage = old), 100)
       }
     },
 
@@ -122,6 +119,10 @@ export default {
         cardAPI
           .queryCardList(this.query)
           .then(response => {
+            //  if (response.code !== 1) {
+            //   this.$alert(response.message)
+            //   return
+            // }
             this.cardList = response.rows
             this.total = response.total
           })
@@ -130,7 +131,12 @@ export default {
     },
 
     visible(val) {
-      if (!val) this.uid = ''
+      if (!val) this.uid = ""
+    },
+
+    cardList(val, oldVal) {
+      if (val.length === 0) this.empty = "暂无数据"
+      this.empty = val.length === 0 ? "暂无数据" : "数据加载中...."
     }
   }
 }
