@@ -55,18 +55,7 @@ export default {
       callback()
     }
     return {
-      // formData: {
-      //   insuranceName: '',
-      //   insuranceCompany: '',
-      //   insuranceCategory: '',
-      //   insuranceLimit: '',
-      //   insuranceCost: '',
-      //   detailedTerms: '',
-      //   insuranceLiability: '',
-      //   isOpen: 1,
-      //   isPay: 1
-      // },
-
+     
       rules: {
         insuranceName: [
           { required: true, message: '请输入保险名称', trigger: 'blur' }

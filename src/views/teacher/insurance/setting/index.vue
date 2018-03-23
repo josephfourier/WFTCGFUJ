@@ -58,13 +58,7 @@
     <el-dialog :title="title" :visible.sync="visible" width="800px" @close="handleClose">
       <insurance-setting :formData="setting" :type="type" @closed="handleInnerClose" :closed="!visible"></insurance-setting>
     </el-dialog>
-    <!-- <div class="zjy-pagination" v-if="cardList.length !== 0">
-      <zjy-pagination :currentPage="currentPage" :total="total" @current-change="currentChange">
-      </zjy-pagination>
-    </div>
-    <el-dialog title="学生证补办审批" :visible.sync="visible" width="800px">
-      <zjy-approval :uid="uid" :closed="!visible" @submit="handleSubmit"></zjy-approval>
-    </el-dialog> -->
+   
   </div>
 </template>
 
