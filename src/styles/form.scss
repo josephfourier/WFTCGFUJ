@@ -1,5 +1,13 @@
 .zjy-form {
+  overflow: hidden;
   .form-item {
     display: inline-block;
+    margin-bottom: 20px;
+    &.block {
+      display: block;
+    }
+    &.pull-right {
+      float: right !important;
+    }
   }
 }

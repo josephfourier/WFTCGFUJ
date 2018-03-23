@@ -54,6 +54,10 @@
       <zjy-pagination :currentPage="currentPage" :total="total" @current-change="currentChange">
       </zjy-pagination>
     </div>
+
+    <el-dialog title="新增投保" :visible.sync="visible" width="800px">
+      <insurance-setting :data="setting"></insurance-setting>
+    </el-dialog>
     <!-- <div class="zjy-pagination" v-if="cardList.length !== 0">
       <zjy-pagination :currentPage="currentPage" :total="total" @current-change="currentChange">
       </zjy-pagination>
@@ -66,6 +70,7 @@
 
 <script>
 import insuranceAPI from "@/api/insurance"
+import InsuranceSetting from "./InsuranceSetting"
 import ZjyPagination from "@/components/pagination"
 
 export default {
@@ -82,12 +87,16 @@ export default {
         studentCode: ""
       },
       empty: "数据加载中....",
-      loading: false
+      loading: false,
+      visible: false,
+      setting: {} // 新增投保设置
     }
   },
 
   methods: {
-    create() {},
+    create() {
+      this.visible = true
+    },
     batchDelete() {},
     handleSelectionChange(rows) {
       this.selectedRows = rows
@@ -104,7 +113,8 @@ export default {
   },
 
   components: {
-    ZjyPagination
+    ZjyPagination,
+    InsuranceSetting
   }, 
 
   created() {
@@ -115,7 +125,7 @@ export default {
   },
 
   watch: {
-     currentPage: {
+    currentPage: {
       immediate: true,
       handler(val, oldval) {
         if (val === -1) return
@@ -127,9 +137,15 @@ export default {
             this.total = response.total
             this.loading = false
           })
-          .catch(err => {})
+          .catch(err => {
+            this.loading = false
+          })
       }
     },
+
+    insuranceList(val) {
+      this.empty = val.length === 0 ? "暂无数据" : "数据加载中...."
+    }
 
   }
 }

@@ -263,7 +263,6 @@ export default {
     },
 
     cardList(val, oldVal) {
-      if (val.length === 0) this.empty = "暂无数据"
       this.empty = val.length === 0 ? "暂无数据" : "数据加载中...."
     }
   }
