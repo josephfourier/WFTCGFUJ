@@ -33,13 +33,13 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <div class="btn-group">
-              <a href="javascript:" @click="view(scope.row)" class="zjy-btn-view">
+            <div class="table-oper-group">
+              <a href="javascript:" @click="edit(scope.row)" class="zjy-btn-view">
                 <i class="zjy-icon"></i>
-                <span>查看</span>
+                <span>编辑</span>
               </a>
 
-              <a href="javascript:" @click="del(scope.row)" class="zjy-btn-delete">
+              <a href="javascript:" @click="deleteOne(scope.row)" class="zjy-btn-delete">
                 <i class="zjy-icon"></i>
                 <span>删除</span>
               </a>
@@ -55,8 +55,8 @@
       </zjy-pagination>
     </div>
 
-    <el-dialog title="新增投保" :visible.sync="visible" width="800px">
-      <insurance-setting :data="setting"></insurance-setting>
+    <el-dialog :title="title" :visible.sync="visible" width="800px" @close="handleClose">
+      <insurance-setting :formData="setting" :type="type" @closed="handleInnerClose" :closed="!visible"></insurance-setting>
     </el-dialog>
     <!-- <div class="zjy-pagination" v-if="cardList.length !== 0">
       <zjy-pagination :currentPage="currentPage" :total="total" @current-change="currentChange">
@@ -69,9 +69,9 @@
 </template>
 
 <script>
-import insuranceAPI from "@/api/insurance"
-import InsuranceSetting from "./InsuranceSetting"
-import ZjyPagination from "@/components/pagination"
+import insuranceAPI from '@/api/insurance'
+import InsuranceSetting from './InsuranceSetting'
+import ZjyPagination from '@/components/pagination'
 
 export default {
   data() {
@@ -81,47 +81,92 @@ export default {
       total: 0,
       query: {
         offset: 0,
-        limit: 10,
-        dataStatus: "", //0:待审批, 1:已通过, 2:已拒绝, 3:审批中
-        appYear: "",
-        studentCode: ""
+        limit: 10
       },
-      empty: "数据加载中....",
+      title: '',
+      empty: '数据加载中....',
       loading: false,
       visible: false,
-      setting: {} // 新增投保设置
+      type: 1, // 1编辑 2修改
+      setting: {
+        insuranceName: '',
+        insuranceCompany: '',
+        insuranceCategory: '',
+        insuranceLimit: '',
+        insuranceCost: '',
+        detailedTerms: '',
+        insuranceLiability: '',
+        isOpen: '1',
+        isPay: '1'
+      } // 新增投保设置
     }
   },
 
   methods: {
     create() {
+      this.title = '新增保险'
+      this.type = 2
       this.visible = true
     },
+
+    edit(row) {
+      this.title = '编辑保险'
+      this.type = 1
+      this.visible = true
+      insuranceAPI
+        .queryOne(row.inssettingUid)
+        .then(response => {
+          this.setting = response.data
+        })
+        .catch(error => {})
+    },
+
+    deleteOne(row) {
+      insuranceAPI
+        .deleteOne(row.inssettingUid)
+        .then(response => {
+          this.refresh()
+        })
+        .catch(error => {})
+    },
+
+    handleClose() {
+      this.visible = false
+    },
+
+    handleInnerClose() {
+      this.visible = false
+      this.refresh()
+    },
+
     batchDelete() {},
+
     handleSelectionChange(rows) {
       this.selectedRows = rows
     },
+
     rowStyle({ row, rowIndex }) {
       return {
-        textAlign: "center"
+        textAlign: 'center'
       }
     },
 
     currentChange(pageNumber) {
       this.currentPage = pageNumber
     },
+
+    refresh() {
+      const old = this.currentPage
+      this.currentPage = -1
+      setTimeout(() => {
+        this.currentPage = old
+      }, 100)
+    }
   },
 
   components: {
     ZjyPagination,
     InsuranceSetting
-  }, 
-
-  created() {
-    insuranceAPI.queryList(this.query).then(response => {
-        this.insuranceList = response.rows
-        this.total = response.total
-    })
   },
 
   watch: {
@@ -129,11 +174,13 @@ export default {
       immediate: true,
       handler(val, oldval) {
         if (val === -1) return
+
+        this.loading = true
         this.query.offset = this.query.limit * (val - 1)
         insuranceAPI
           .queryList(this.query)
           .then(response => {
-            this.this.insuranceList = response.rows
+            this.insuranceList = response.rows
             this.total = response.total
             this.loading = false
           })
@@ -144,9 +191,8 @@ export default {
     },
 
     insuranceList(val) {
-      this.empty = val.length === 0 ? "暂无数据" : "数据加载中...."
+      this.empty = val.length === 0 ? '暂无数据' : '数据加载中....'
     }
-
   }
 }
 </script>

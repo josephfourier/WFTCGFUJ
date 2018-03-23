@@ -10,6 +10,7 @@
 @import './steps.scss';
 @import './select.scss';
 @import './form.scss';
+@import './el-input.scss';
 
 .main-container {
   margin-left: 160px;
@@ -72,7 +73,7 @@
 
 .zjy-btn-delete {
   .zjy-icon {
-    background: url('../assets/images/zjy-icon-delete.png') no-repeat 0 0;
+    background: url('../assets/images/zjy-icon-delete.png') no-repeat 3px 0;
   }
 }
 
@@ -106,8 +107,14 @@
   }
 }
 
-.btn-group {
-  width: 150px;
+.table-oper-group {
+  width: 120px;
   margin: 0 auto;
   text-align: left;
+  &>a{
+    margin-right: 10px;
+  }
+  &>a:last-child {
+    margin-right: 0;
+  }
 }
