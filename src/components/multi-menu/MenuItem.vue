@@ -214,7 +214,7 @@ export default {
 
   .zjy-menu-panel__body {
     border: 1px solid #c6c6c6;
-    min-height: 327px;
+    min-height: 280px;
     .zjy-search__input {
       border-bottom: 1px solid #c6c6cc;
       height: 39px;

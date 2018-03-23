@@ -1,6 +1,6 @@
 <!-- 教师审批流程查看 -->
 <template>
-  <div class="stuidcard">
+  <div class="stuidcard" v-loading="loading">
     <div class="zjy-form">
       <div class="form-item">
         <span>学号:</span>
@@ -37,7 +37,7 @@
     </div>
 
     <div class="zjy-steps">
-      <span>审批进度</span>
+      <p class="title">审批进度</p>
       <zjy-steps :active="step" align-center>
         <zjy-step title="发起人" :description="'(' + student.studentName + ')'" v-if="steps.length !== 0">
         </zjy-step>
@@ -56,7 +56,13 @@
             </div>
             <!--  -->
             <div v-if="index <= step - 1 && item.approvalStatus">
-              <p class="status">
+              <p 
+                :class="[
+                { statusYes: item.approvalStatus == 1 },
+                { statusNo: item.approvalStatus == 2 }, 
+                { statusWait: item.approvalStatus == 0 }, 
+                  'status'
+                ]">
                 ({{ item.approvalStatus | statusFormat }})
               </p>
             </div>
@@ -85,7 +91,7 @@
         <zjy-button type="primary" @click="innerYes">同 意</zjy-button>
       </div>
     </el-dialog>
-    <p v-if="reason">{{reason}}</p>
+    <p v-if="reason && isCompleted" class="refused">拒绝原因: {{reason}}</p>
   </div>
 </template>
 
@@ -118,7 +124,8 @@ export default {
       innerVisible: false,
       approved: false, // 是否已处理申请
       approverList: {}, // 下一步审批人列表
-      step: 1
+      step: 1,
+      loading: false
     }
   },
 
@@ -210,6 +217,7 @@ export default {
     uid: {
       immediate: true,
       handler(val) {
+        this.loading = true
         if (val == "") return
         cardAPI
           .queryOne(val)
@@ -223,6 +231,7 @@ export default {
               studentId: response.data.studentId,
               dataStatus: response.data.dataStatus
             }
+            this.loading = false
           })
           .catch(error => {})
       }
@@ -231,6 +240,7 @@ export default {
     student: {
       deep: true,
       handler(val) {
+        
         cardAPI
           .queryApprovalProcess(this.student.studentId, this.uid)
           .then(response => {
@@ -263,9 +273,11 @@ export default {
             this.approverList = response.data[Object.keys(response.data).filter(x => Number(x) == x)]
 
             this.isCompleted = this.steps.every(x => x.approvalStatus && x.approvalStatus == 1) || this.steps.some(x => x.approvalStatus && x.approvalStatus == 2)
+            this.loading = false
           })
           .catch(error => {
             console.log(error)
+            this.loading = false
           })
       }
     },
@@ -296,8 +308,35 @@ export default {
   }
 }
 .reason {
+  margin-bottom: 10px;
+ 
+}
   .title {
     font-weight: bold;
+  }
+.refused {
+  height: 54px;
+  background-color: #f5f5f5;
+  font-size: 14px;
+  color: #333333;
+  line-height: 54px;
+  text-indent: 15px;
+  margin: 30px 0 15px 0;
+   font-weight: bold;
+}
+.zjy-textarea {
+  height: 100px;
+}
+
+.status {
+  &.statusNo {
+    color: #ed7734;
+  }
+  &.statusYes {
+    color: #37c6d3;
+  }
+  &.statusWait {
+    color: #ed7734;
   }
 }
 </style>

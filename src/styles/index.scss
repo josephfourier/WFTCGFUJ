@@ -76,3 +76,38 @@
   }
 }
 
+
+.el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover {
+  color: #36c6d3;
+}
+
+// table-search
+
+.zjy-table-oper {
+  .zjy-table-oper__item {
+    margin-right: 5px;
+  }
+  padding: 10px 0;
+  .zjy-table-oper__item {
+    display: inline-block;
+    font-size: 12px;
+  }
+  .zjy-table-oper__del {
+    padding: 5px 10px;
+    border-radius: 25px;
+    color: #ed7734;
+    border: 1px solid #ed7734;
+  }
+  .zjy-table-oper__create {
+    padding: 5px 10px;
+    border-radius: 25px;
+    color: #0593fd;
+    border: 1px solid #0593fd;
+  }
+}
+
+.btn-group {
+  width: 150px;
+  margin: 0 auto;
+  text-align: left;
+}

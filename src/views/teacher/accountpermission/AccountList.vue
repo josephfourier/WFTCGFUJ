@@ -76,7 +76,8 @@ export default {
       status: -1,
       dialogVisible: false,
       message: '',
-      empty: '数据加载中...'
+      empty: '数据加载中...',
+      loading: true
     }
   },
 
@@ -88,9 +89,6 @@ export default {
   },
 
   computed: {
-    loading() {
-      return this.accountList.length === 0
-    }
   },
   components: {
     ZjyPagination,
@@ -101,22 +99,26 @@ export default {
     currentPage: {
       immediate: true,
       handler(val, oldval) {
+        this.loading = true
         accountAPI
           .queryAccountList((val - 1) * this.limit, this.limit, this.query)
           .then(resp => {
             this.accountList = resp.items
             this.total = resp.total
+            this.loading = false
           })
           .catch(err => {})
       }
     },
 
     query(val, oldVal) {
+      this.loading = true
       accountAPI
         .queryAccountList(0, this.limit, val)
         .then(resp => {
           this.accountList = resp.items
           this.total = resp.total
+          this.loading = false
         })
         .catch(err => {})
     },

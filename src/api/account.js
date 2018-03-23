@@ -12,6 +12,7 @@ export default {
       },
       transformResponse: (data) => {
         const response = JSON.parse(data).data
+        if (JSON.parse(data).code !== 1) return JSON.parse(data)
 
         let items = []
         response.rows.forEach(item => {

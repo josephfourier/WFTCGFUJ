@@ -2,7 +2,7 @@ import ajax from '@/utils/ajax'
 
 export default {
   // 查询初始流程信息（当补办信息为空时发送)
-  queryInitial  (id) {
+  queryInitial (id) {
     return ajax({
       url: '/manage/swmsApproval/initSwmsApproval/' + id,
       method: 'get'
@@ -61,6 +61,7 @@ export default {
         const rows = json.data.rows.map(item => {
           return {
             stuidcardUid: item.stuidcardUid,
+            studentId: item.studentId,
             studentNo: item.ucenterStudent.studentNo,
             studentName: item.ucenterStudent.studentName,
             facultyName: item.ucenterStudent.facultyName,
@@ -84,8 +85,6 @@ export default {
 
   // 提交审批通过
   approved (reissued, steps) {
-    console.log(reissued)
-    console.log(steps)
     return ajax({
       url: '/manage/teacher/swmsStuidcard',
       method: 'put',
@@ -98,6 +97,14 @@ export default {
         dataStatus: reissued.dataStatus,
         swmsApprovalList: steps
       }
+    })
+  },
+
+  // 批量删除
+  batchDelete (ids) {
+    return ajax({
+      url: '/manage/teacher/swmsStuidcard/' + ids,
+      method: 'delete'
     })
   }
 }

@@ -1,6 +1,6 @@
 <!-- 学生证补办 学生 -->
 <template>
-  <div class="stuidcard">
+  <div class="stuidcard" v-loading="fullscreenLoading">
     <div class="zjy-form">
       <div class="form-item">
         <span>学号:</span>
@@ -56,7 +56,12 @@
               </div>
               <!--  -->
               <div v-if="index <= step - 1 && item.approvalStatus">
-                <p class="status">
+                <p  :class="[
+                { statusYes: item.approvalStatus == 1 },
+                { statusNo: item.approvalStatus == 2 }, 
+                { statusWait: item.approvalStatus == 0 }, 
+                  'status'
+                ]">
                   ({{ item.approvalStatus | statusFormat }})
                 </p>
               </div>
@@ -107,7 +112,8 @@ export default {
       nextTeacherId: '',
       isCompleted: false,
       isReapplyed: false,
-      empty: '流程加载中...'
+      empty: '流程加载中...',
+      fullscreenLoading: false
     }
   },
 
@@ -126,22 +132,28 @@ export default {
         return
       }
 
+      this.fullscreenLoading = true
+
+
       const _ = this.steps.find(x => x.approvalStep == this.step)
       if (_ && _.approvalType == 1) {
         _.teacherId = this.nextTeacherId
         _.teacherName = this.nextTeacherName
       }
 
+
       cardAPI
         .createApproval(this.reissued, this.steps)
         .then(response => {
           const msg = response.code === 1 ? '保存成功' : response.message
+          this.fullscreenLoading = false
           this.$alert(msg)
 
           this.refresh()
         })
         .catch(error => {
           console.log(error)
+          this.fullscreenLoading = true
         })
     },
 
@@ -237,9 +249,11 @@ export default {
   },
 
   created() {
+    this.fullscreenLoading = true
     cardAPI
       .queryReissued()
       .then(response => {
+        this.fullscreenLoading = false
         this.student = response.data.ucenterStudent
         // 未曾申请过补办
         if (!response.data.swmsStuidcard) {
@@ -309,6 +323,7 @@ export default {
       })
       .catch(error => {
         console.log(error)
+        this.fullscreenLoading = false
       })
   },
 
@@ -396,5 +411,18 @@ export default {
   font-size: 16px;
   line-height: 24px;
   margin: 5px 0 0 0;
+}
+
+
+.status {
+  &.statusNo {
+    color: #ed7734;
+  }
+  &.statusYes {
+    color: #37c6d3;
+  }
+  &.statusWait {
+    color: #ed7734;
+  }
 }
 </style>
