@@ -6,7 +6,6 @@ export default {
       params: query,
       transformResponse: data => {
         const json = JSON.parse(data)
-        console.log(json)
         if (json.code !== 1) return json
 
         const total = json.data.total

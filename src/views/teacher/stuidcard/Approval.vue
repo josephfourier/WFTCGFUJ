@@ -69,7 +69,7 @@
           </div>
           <!-- 只初始化当前流程的教师列表 (index === step - 1) -->
           <!-- 若存在流程状态属性则不初始化 (approvalStatus) -->
-          <el-select class="zjy-select" v-model="value" placeholder="请选择审批人" slot="custom" slot-scope="props" @change="handleChange" v-if="props.data.approvalType == 1 && index === step - 1 && !props.data.approvalStatus && approved">
+          <el-select class="zjy-select" v-model="value" placeholder="请选择审批人" slot="custom" slot-scope="props" @change="handleChange" v-if="props.data.approvalType == 1 && index === step - 1 && !props.data.approvalStatus && approved && !reason">
             <el-option v-for="item in approverList" :key="item.teacherId" :label="item.teacherName" :value="item.teacherId">
             </el-option>
           </el-select>
@@ -132,16 +132,17 @@ export default {
   methods: {
     no() {
       this.innerVisible = true
-      this.steps[this.step - 1].approvalStatus = STATUS.no
-      this.approved = true
+      
     },
 
     yes() {
       this.steps[this.step - 1].approvalStatus = STATUS.yes
       this.approved = true
     },
+
     innerNo() {
       this.innerVisible = false
+      this.reason = ''
     },
 
     innerYes() {
@@ -149,11 +150,13 @@ export default {
         this.$alert("请输入拒绝原因")
         return
       }
+      this.steps[this.step - 1].approvalStatus = STATUS.no
+      this.approved = true
       this.innerVisible = false
     },
 
     submit() {
-      if (!this.value && !this.$empty(this.approverList)) {
+      if (!this.value && !this.$empty(this.approverList) && !this.reason) {
         this.$alert("请选择下一步审批人")
         return
       }
