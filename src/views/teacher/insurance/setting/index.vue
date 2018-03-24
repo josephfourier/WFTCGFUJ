@@ -5,14 +5,14 @@
       <div class="zjy-table-oper">
 
         <div class="zjy-table-oper__item">
-          <div class="zjy-table-oper__create">
+          <div class="zjy-table-oper--create">
             <a href="javascript:;" @click="create">新增</a>
           </div>
         </div>
 
         <div class="zjy-table-oper__item">
-          <div class="zjy-table-oper__del">
-            <a href="javascript:;" @click="batchDelete">批量删除</a>
+          <div class="zjy-table-oper--del">
+            <a href="javascript:;" @click="batchRemove">批量删除</a>
           </div>
         </div>
       </div>
@@ -34,12 +34,12 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <div class="table-oper-group">
-              <a href="javascript:" @click="edit(scope.row)" class="zjy-btn-view">
+              <a href="javascript:" @click="edit(scope.row)" class="zjy-btn-edit">
                 <i class="zjy-icon"></i>
                 <span>编辑</span>
               </a>
 
-              <a href="javascript:" @click="deleteOne(scope.row)" class="zjy-btn-delete">
+              <a href="javascript:" @click="_delete(scope.row)" class="zjy-btn-delete">
                 <i class="zjy-icon"></i>
                 <span>删除</span>
               </a>
@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import insuranceAPI from '@/api/insurance'
+import insuranceAPI from '@/api/teacher/insurance/setting'
 import InsuranceSetting from './InsuranceSetting'
 import ZjyPagination from '@/components/pagination'
 
@@ -108,16 +108,16 @@ export default {
       this.type = 1
       this.visible = true
       insuranceAPI
-        .queryOne(row.inssettingUid)
+        .queryForObject(row.inssettingUid)
         .then(response => {
           this.setting = response.data
         })
         .catch(error => {})
     },
 
-    deleteOne(row) {
+    _delete(row) {
       insuranceAPI
-        .deleteOne(row.inssettingUid)
+        .delete(row.inssettingUid)
         .then(response => {
           this.refresh()
         })
@@ -133,7 +133,7 @@ export default {
       this.refresh()
     },
 
-    batchDelete() {},
+    batchRemove() {},
 
     handleSelectionChange(rows) {
       this.selectedRows = rows
@@ -172,7 +172,7 @@ export default {
         this.loading = true
         this.query.offset = this.query.limit * (val - 1)
         insuranceAPI
-          .queryList(this.query)
+          .queryForList(this.query)
           .then(response => {
             this.insuranceList = response.rows
             this.total = response.total

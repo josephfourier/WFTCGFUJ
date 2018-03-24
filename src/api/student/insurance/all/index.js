@@ -1,8 +1,9 @@
 import ajax from '@/utils/ajax'
 
 export default {
-  queryList (query) {
-    return ajax.get('/manage/insurance-setting', {
+  // 获取所有保险信息
+  queryForList (query) {
+    return ajax.get('/manage/insurance-setting/student', {
       params: query,
       transformResponse: data => {
         const json = JSON.parse(data)
@@ -18,23 +19,7 @@ export default {
     })
   },
 
-  createOne (setting) {
-    return ajax.post('/manage/insurance-setting', setting)
-  },
-
-  updateOne (id, setting) {
-    return ajax.put('/manage/insurance-setting/' + id, setting)
-  },
-
-  queryOne (id) {
+  queryForObject (id) {
     return ajax.get('/manage/insurance-setting/' + id)
-  },
-
-  deleteOne (id) {
-    return ajax.delete('/manage/insurance-setting/' + id)
-  },
-
-  batchDelete (ids) {
-
   }
 }

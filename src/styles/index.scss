@@ -11,12 +11,17 @@
 @import './select.scss';
 @import './form.scss';
 @import './el-input.scss';
+@import './tabs.scss';
 
 .main-container {
   margin-left: 160px;
   &.hideSide {
     margin-left: 54px;
   }
+}
+
+.zjy-main {
+  position: relative;
 }
 
 .zjy-header {
@@ -71,6 +76,12 @@
   }
 }
 
+.zjy-btn-edit {
+  .zjy-icon {
+    background: url('../assets/images/zjy-icon-edit.png') no-repeat 0 2px;
+  }
+}
+
 .zjy-btn-delete {
   .zjy-icon {
     background: url('../assets/images/zjy-icon-delete.png') no-repeat 3px 0;
@@ -93,15 +104,17 @@
     display: inline-block;
     font-size: 12px;
   }
-  .zjy-table-oper__del {
+  [class*=zjy-table-oper--] {
     padding: 5px 10px;
     border-radius: 25px;
     color: #ed7734;
     border: 1px solid #ed7734;
   }
-  .zjy-table-oper__create {
-    padding: 5px 10px;
-    border-radius: 25px;
+  .zjy-table-oper--del {
+    color: #ed7734;
+    border: 1px solid #ed7734;
+  }
+  .zjy-table-oper--create {
     color: #0593fd;
     border: 1px solid #0593fd;
   }
@@ -117,4 +130,12 @@
   &>a:last-child {
     margin-right: 0;
   }
+}
+
+.zjy-line {
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  left: 0;
+  background-color: #e8edf2;
 }

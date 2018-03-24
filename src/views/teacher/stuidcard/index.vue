@@ -28,12 +28,12 @@
       </div>
       <div class="zjy-table-oper">
         <div class="zjy-table-oper__item">
-          <div class="zjy-table-oper__del">
-            <a href="javascript:;" @click="batchDelete">批量删除</a>
+          <div class="zjy-table-oper--del">
+            <a href="javascript:;" @click="batchRemove">批量删除</a>
           </div>
         </div>
       </div>
-      <el-table ref="cardTable" @selection-change="handleSelectionChange" :data="cardList" style="width: 100%" :row-style="rowStyle" :header-row-style="rowStyle" :header-cell-style="rowStyle" v-loading="loading">
+      <el-table ref="cardTable" @selection-change="handleSelectionChange" :data="list" style="width: 100%" :row-style="rowStyle" :header-row-style="rowStyle" :header-cell-style="rowStyle" v-loading="loading">
         <el-table-column type="selection" width="30">
         </el-table-column>
         <el-table-column type="index" label="序号" :index="1" width="45">
@@ -69,7 +69,7 @@
         <span slot="empty">{{ empty }}</span>
       </el-table>
     </div>
-    <div class="zjy-pagination" v-if="cardList.length !== 0">
+    <div class="zjy-pagination" v-if="list.length !== 0">
       <zjy-pagination :currentPage="currentPage" :total="total" @current-change="currentChange">
       </zjy-pagination>
     </div>
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import cardAPI from "@/api/stuidcard"
+import cardAPI from "@/api/teacher/stuidcard"
 import ZjyPagination from "@/components/pagination"
 import ZjyApproval from "./Approval"
 import ZjyInput from "@/components/input"
@@ -88,7 +88,7 @@ import ZjyInput from "@/components/input"
 export default {
   data() {
     return {
-      cardList: [],
+      list: [],
       //limit: 1, // 测试分页
       total: 0,
       currentPage: 1,
@@ -145,17 +145,16 @@ export default {
 
     handleSelectionChange(rows) {
       this.selectedRows = rows
-      //this.$refs.cardTable.toggleRowSelection(row)
     },
 
     handleClick() {
       this.loading = true
       this.query.offset = this.query.limit * (this.currentPage - 1)
       cardAPI
-        .queryCardList(this.query)
+        .queryForList(this.query)
         .then(response => {
           this.loading = false
-          this.cardList = response.rows
+          this.list = response.rows
           this.total = response.total
         })
         .catch(err => {
@@ -174,7 +173,7 @@ export default {
       }
     },
 
-    batchDelete() {
+    batchRemove() {
       if (this.selectedRows.length === 0) return
       let ids = ""
       this.selectedRows.forEach(x => {
@@ -182,7 +181,7 @@ export default {
       })
       this.loading = true
       cardAPI
-        .batchDelete(ids.replace(/^-|-$/g, ""))
+        .batchRemove(ids.replace(/^-|-$/g, ""))
         .then(response => {
           this.loading = false
           this.refresh()
@@ -193,7 +192,7 @@ export default {
     del(row) {
       this.loading = true
       cardAPI
-        .batchDelete(row.studentId)
+        .batchRemove(row.studentId)
         .then(response => {
           this.loading = false
           this.refresh()
@@ -219,9 +218,9 @@ export default {
       this.loading = true
       this.query.offset = this.query.limit * (this.currentPage - 1)
       cardAPI
-        .queryCardList(this.query)
+        .queryForList(this.query)
         .then(response => {
-          this.cardList = response.rows
+          this.list = response.rows
           this.total = response.total
           this.loading = false
         })
@@ -244,13 +243,10 @@ export default {
         if (val === -1) return
         this.query.offset = this.query.limit * (val - 1)
         cardAPI
-          .queryCardList(this.query)
+          .queryForList(this.query)
           .then(response => {
-            //  if (response.code !== 1) {
-            //   this.$alert(response.message)
-            //   return
-            // }
-            this.cardList = response.rows
+   
+            this.list = response.rows
             this.total = response.total
             this.loading = false
           })
@@ -262,7 +258,7 @@ export default {
       if (!val) this.uid = ""
     },
 
-    cardList(val, oldVal) {
+    list(val, oldVal) {
       this.empty = val.length === 0 ? "暂无数据" : "数据加载中...."
     }
   }
@@ -286,12 +282,7 @@ export default {
     display: inline-block;
     font-size: 12px;
   }
-  .zjy-table-oper__del {
-    padding: 5px 10px;
-    border-radius: 25px;
-    color: #ed7734;
-    border: 1px solid #ed7734;
-  }
+
 }
 
 .btn-group {

@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import cardAPI from "@/api/stuidcard"
+import cardAPI from "@/api/teacher/stuidcard"
 import ZjyInput from "@/components/input"
 import { ZjyStep, ZjySteps } from "@/components/steps"
 import ZjyButton from "@/components/button"
@@ -223,7 +223,7 @@ export default {
         this.loading = true
         if (val == "") return
         cardAPI
-          .queryOne(val)
+          .queryForObject(val)
           .then(response => {
             this.student = response.data.ucenterStudent
             this.reissued = {

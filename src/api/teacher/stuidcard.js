@@ -1,34 +1,6 @@
 import ajax from '@/utils/ajax'
 
 export default {
-  // 查询初始流程信息（当补办信息为空时发送)
-  queryInitial (id) {
-    return ajax({
-      url: '/manage/swmsApproval/initSwmsApproval/' + id,
-      method: 'get'
-    })
-  },
-  // 获取补办信息
-  queryReissued () {
-    return ajax({
-      url: '/manage/student/swmsStuidcard',
-      method: 'get'
-    })
-  },
-
-  createApproval (reissued, steps) {
-    return ajax({
-      url: '/manage/student/swmsStuidcard',
-      method: 'post',
-      data: {
-        applyReason: reissued.applyReason,
-        applyDate: new Date().getTime(),
-        applyYear: new Date().getFullYear(),
-        studentId: reissued.studentId,
-        swmsApprovalList: steps
-      }
-    })
-  },
 
   // 查询流程进度(当补办信息不为空时发送)
   queryApprovalProcess (sid, did) {
@@ -38,19 +10,9 @@ export default {
     })
   },
 
-  // 查询审批进行到哪一步
-  queryApprovalStep (list) {
-    return list.filter(item => item.approvalStatus).map((i) => {
-      return {
-        approvalStatus: i.approvalStatus,
-        approvalStep: i.approvalStep
-      }
-    })
-  },
-
   // ------------------------- 教师端 -------------------------
   // 查询学生证列表
-  queryCardList (query) {
+  queryForList (query) {
     return ajax.get('/manage/teacher/swmsStuidcards', {
       params: query,
       transformResponse: data => {
@@ -79,7 +41,7 @@ export default {
     })
   },
 
-  queryOne (id) {
+  queryForObject (id) {
     return ajax.get('/manage/teacher/swmsStuidcard/' + id)
   },
 
@@ -101,7 +63,7 @@ export default {
   },
 
   // 批量删除
-  batchDelete (ids) {
+  batchRemove (ids) {
     return ajax({
       url: '/manage/teacher/swmsStuidcard/' + ids,
       method: 'delete'

@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import accountAPI from '@/api/account'
+import accountAPI from '@/api/teacher/account'
 import ZjyPagination from '@/components/pagination'
 import ZJYList from '@/components/list'
 
@@ -101,7 +101,7 @@ export default {
       handler(val, oldval) {
         this.loading = true
         accountAPI
-          .queryAccountList((val - 1) * this.limit, this.limit, this.query)
+          .queryForList((val - 1) * this.limit, this.limit, this.query)
           .then(resp => {
             this.accountList = resp.items
             this.total = resp.total
@@ -114,7 +114,7 @@ export default {
     query(val, oldVal) {
       this.loading = true
       accountAPI
-        .queryAccountList(0, this.limit, val)
+        .queryForList(0, this.limit, val)
         .then(resp => {
           this.accountList = resp.items
           this.total = resp.total

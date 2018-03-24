@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import insuranceAPI from '@/api/insurance'
+import insuranceAPI from '@/api/teacher/insurance/setting'
 import ZjyButton from '@/components/button'
 
 export default {
@@ -89,9 +89,9 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           if (this.type === 1)
-            insuranceAPI.updateOne(this.formData.inssettingUid, this.formData)
+            insuranceAPI.update(this.formData.inssettingUid, this.formData)
           else
-            insuranceAPI.createOne(this.formData)
+            insuranceAPI.create(this.formData)
             this.$emit('closed')
         } else {
           return false

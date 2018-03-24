@@ -66,10 +66,13 @@ td.el-table-column--selection {
     .zjy-table-search__item {
       float: left;
       margin-right: 20px;
+        margin-bottom: 1px;
+      &:last-of-type {
+          margin-right: 10px;
+      }
       .zjy-input {
         width: auto;
       }
-
       .el-select {
         font-size: 12px;
         .el-input {
@@ -85,13 +88,19 @@ td.el-table-column--selection {
       .el-input.is-active .el-input__inner, .el-input__inner:focus {
         border-color: #37c6d4
       }
-
-     
     }
-  
-  
-  }
 
+    .zjy-table-search__button {
+        background: #37c6d4 url('../assets/images/zjy-icon-search.png') 16px 10px no-repeat;
+        width: 50px;
+        height: 34px;
+        display: inline-block;
+        vertical-align: top;
+      }
+
+  }
+  .zjy-line {
+  }
   .el-select-dropdown__item.selected {
     color: #37c6d4;
     font-weight: normal;

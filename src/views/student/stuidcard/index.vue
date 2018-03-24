@@ -94,7 +94,7 @@
 
 <script>
 import axios from 'axios'
-import cardAPI from '@/api/stuidcard'
+import cardAPI from '@/api/student/stuidcard'
 import ZjyInput from '@/components/input'
 import ZjyButton from '@/components/button'
 import { ZjyStep, ZjySteps } from '@/components/steps'
@@ -143,7 +143,7 @@ export default {
 
 
       cardAPI
-        .createApproval(this.reissued, this.steps)
+        .create(this.reissued, this.steps)
         .then(response => {
           const msg = response.code === 1 ? '保存成功' : response.message
           this.fullscreenLoading = false

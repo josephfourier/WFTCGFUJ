@@ -60,4 +60,37 @@ let reback = () => {
   })
 }
 
-export { resolve, relogin, reback, param2Obj }
+let selfMerge = (resource, target) => {
+  function* objectEntries (obj) {
+    let propKeys = Reflect.ownKeys(obj)
+
+    for (let propKey of propKeys) {
+      yield [propKey, obj[propKey]]
+    }
+  }
+  if (Object.keys(resource).length === 0) return
+
+  for (let [key, value] of objectEntries(resource)) {
+    if (value.constructor === Object) {
+      selfMerge(resource[key], target)
+    } else {
+      target[key] = value
+    }
+  }
+}
+
+let dateFormat =  val => {
+  if (!val) return
+  const date = new Date(val)
+  const m = date.getMonth() + 1
+  const d = date.getDate() + 1
+  return (
+    date.getFullYear() +
+    '-' +
+    (m < 10 ? '0' + m : m) +
+    '-' +
+    (d < 10 ? '0' + d : d)
+  )
+}
+
+export { resolve, relogin, reback, param2Obj, selfMerge, dateFormat }

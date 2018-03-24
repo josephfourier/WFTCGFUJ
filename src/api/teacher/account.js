@@ -1,7 +1,7 @@
 import ajax from '@/utils/ajax'
 
 export default {
-  queryAccountList (offset, limit, query) {
+  queryForList (offset, limit, query) {
     return ajax({
       url: '/manage/dataScopePerms',
       method: 'get',
