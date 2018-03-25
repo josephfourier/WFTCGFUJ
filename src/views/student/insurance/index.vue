@@ -4,10 +4,10 @@
     <div class="zjy-tabs">
       <el-tabs type="border-card">
         <el-tab-pane label="我的保险">
-          <my-insurance class="zjy-tab__item"></my-insurance>
+          <my-insurances class="zjy-tab__item"></my-insurances>
         </el-tab-pane>
         <el-tab-pane label="全部保险">
-          <insurance class="zjy-tab__item"></insurance>
+          <all-insurances class="zjy-tab__item"></all-insurances>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import MyInsurance from './MyInsurance'
-import Insurance from './Insurance'
+import MyInsurances from './MyInsurances'
+import AllInsurances from './AllInsurances'
 export default {
   data() {
     return {
@@ -29,8 +29,8 @@ export default {
     }
   },
   components: {
-    Insurance,
-    MyInsurance
+    AllInsurances,
+    MyInsurances
   }
 }
 </script>

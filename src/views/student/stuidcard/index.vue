@@ -118,10 +118,6 @@ export default {
   },
 
   methods: {
-    handleChange() {
-      console.log(arguments)
-    },
-
     submit() {
       if (!this.reissued.applyReason) {
         this.$alert('请填写申请原因')

@@ -21,5 +21,11 @@ export default {
 
   queryForObject (id) {
     return ajax.get('/manage/insurance-setting/' + id)
+  },
+
+  create (id, swmsApprovalList) {
+    return ajax.post('/manage/insurance/' + id, {
+      swmsApprovalList
+    })
   }
 }

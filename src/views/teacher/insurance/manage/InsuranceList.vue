@@ -10,8 +10,6 @@
       <div class="zjy-table-search__item">
         <span>申请年份</span>
         <el-select v-model="query.appYear" placeholder="请选择">
-
-          </el-option>
         </el-select>
       </div>
       <div class="zjy-table-search__item">
@@ -63,27 +61,30 @@
       </zjy-pagination>
     </div>
 
-    <el-dialog title="权限范围" :visible.sync="dialogVisible" width="800px">
-
+    <el-dialog title="保单审批" :visible.sync="insuranceVisible" width="800px">
+      <insurance-process :data="setting" v-model="value"></insurance-process>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import insuranceSettingAPI from '@/api/teacher/insurance/setting'
 import insuranceManageAPI from '@/api/teacher/insurance/manage'
+import commonAPI from '@/api/common'
 import { selfMerge, dateFormat as _dateFormat } from '@/utils'
 import ZjyInput from '@/components/input'
 import ZjyPagination from '@/components/pagination'
+import InsuranceProcess from './InsuranceProcess'
 // 审批状态：0-待审批，1-已通过，2-已拒绝，3-审批中，4-待确认，5-待付款
 export default {
   data() {
     return {
+      setting: {}, // 保险设置信息
+      value: {},  // 审批流程进度信息
       currentPage: 1,
       list: [],
       limit: 10,
       total: 0,
-      dialogVisible: false,
+      insuranceVisible: false,
       query: {
         offset: 0,
         limit: 10,
@@ -107,14 +108,30 @@ export default {
       return ['待审批', '已通过', '已拒绝', '审批中', '待确认', '待付款'][
         +cellValue
       ]
+    },
+    
+    // 保单审批
+    view(row) {
+      console.log(row)
+      // insuranceManageAPI.queryForObject(row.insuranceUid).then(response => {
+      //   console.log(response)
+      // })
+      commonAPI.queryApprovalProcess(row.studentId, row.insuranceUid).then(response => {
+        console.log(response)
+        this.setting = row
+        this.value = response.data
+        this.insuranceVisible = true
+      })
     }
   },
 
   created() {},
   components: {
     ZjyInput,
-    ZjyPagination
+    ZjyPagination,
+    InsuranceProcess
   },
+
   watch: {
     currentPage: {
       immediate: true,

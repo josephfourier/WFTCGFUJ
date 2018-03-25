@@ -1,13 +1,21 @@
-<!--  -->
+<!-- 通用panel组件  -->
 <template>
-  <div>我的保险</div>
+  <div class="zjy-panel">
+    <slot></slot>
+  </div>
 </template>
 
 <script>
+
+
 export default {
   data () {
     return {
     }
+  },
+ 
+  components: {
+   
   }
 
 }

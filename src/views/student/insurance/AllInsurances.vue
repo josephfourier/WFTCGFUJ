@@ -15,8 +15,8 @@
         </el-table-column>
         <el-table-column prop="insuranceLimit" label="保险期限" width="100">
         </el-table-column>
-          <el-table-column prop="applyStatus" label="状态" width="300" :formatter="statusFormate">
-      </el-table-column>
+        <el-table-column prop="applyStatus" label="状态" width="300" :formatter="statusFormate">
+        </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <div class="table-oper-group">
@@ -25,7 +25,7 @@
                 <span>查看</span>
               </a>
 
-              <a href="javascript:" @click="deleteOne(scope.row)" class="zjy-btn-delete">
+              <a href="javascript:" @click="create(scope.row)" class="zjy-btn-delete">
                 <i class="zjy-icon"></i>
                 <span>申请</span>
               </a>
@@ -41,16 +41,25 @@
       </zjy-pagination>
     </div>
 
+    <el-dialog :title="title" :visible.sync="visible" width="800px">
+      <application :data="setting" v-model="value" :closed="!visible" @submit="handleSubmit"></application>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import insuranceAPI from '@/api/student/insurance/all'
+import commonAPI from '@/api/common'
 import ZjyPagination from '@/components/pagination'
+import Application from './Application'
+
+import axios from 'axios'
 
 export default {
   data() {
     return {
+      setting: {}, // 保单设置详情
+      value: {},   // 保单对应审批
       list: [],
       currentPage: 1,
       total: 0,
@@ -58,7 +67,7 @@ export default {
         offset: 0,
         limit: 10
       },
-      title: '',
+      title: '保单详情',
       empty: '数据加载中....',
       loading: false,
       visible: false
@@ -67,10 +76,10 @@ export default {
 
   methods: {
     statusFormate(row, column, cellValue) {
-      return ['可申请', '申请中', '未申请'][
-        +cellValue
-      ]
+      return ['可申请', '申请中', '未申请'][+cellValue]
     },
+
+    handleSubmit() {},
 
     rowStyle({ row, rowIndex }) {
       return {
@@ -79,12 +88,30 @@ export default {
     },
 
     view(row) {
-      console.log(row.inssettingUid)
-      insuranceAPI.queryForObject(row.inssettingUid).then(response => {
-        console.log(response)
-      }).catch(error => {
+      this.title = '保单详情'
+      insuranceAPI
+        .queryForObject(row.inssettingUid)
+        .then(response => {
+          this.setting = response.data
+          this.visible = true
+        })
+        .catch(error => {})
+    },
 
-      })
+    create(row) {
+      this.title = '保单申请'
+      axios
+        .all([
+          commonAPI.queryInitial(151),
+          insuranceAPI.queryForObject(row.inssettingUid)
+        ])
+        .then(
+          axios.spread((r1, r2) => {
+            this.value = r1.data
+            this.setting = r2.data
+            this.visible = true
+          })
+        )
     },
 
     currentChange(pageNumber) {
@@ -101,7 +128,8 @@ export default {
   },
 
   components: {
-    ZjyPagination
+    ZjyPagination,
+    Application
   },
 
   watch: {

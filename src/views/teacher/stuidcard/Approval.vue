@@ -132,7 +132,6 @@ export default {
   methods: {
     no() {
       this.innerVisible = true
-      
     },
 
     yes() {
