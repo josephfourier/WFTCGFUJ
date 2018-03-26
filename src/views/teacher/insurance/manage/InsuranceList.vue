@@ -27,11 +27,11 @@
       </div>
     </div>
     <el-table :data="list" style="width: 100%" v-loading="loading">
-      <el-table-column type="selection" width="30">
+      <!-- <el-table-column type="selection" width="30">
+      </el-table-column> -->
+      <el-table-column type="index" label="序号" :index="1" width="50">
       </el-table-column>
-      <el-table-column type="index" label="序号" :index="1" width="100">
-      </el-table-column>
-      <el-table-column prop="studentNo" label="学号" width="150">
+      <el-table-column prop="studentNo" label="学号" width="100">
       </el-table-column>
       <el-table-column prop="studentName" label="学生姓名" width="120">
       </el-table-column>
@@ -41,9 +41,9 @@
       </el-table-column>
       <el-table-column prop="insuranceName" label="险种名称" width="300">
       </el-table-column>
-      <el-table-column prop="insuranceCost" label="保险费用" width="300">
+      <el-table-column prop="insuranceCost" label="保险费用" width="80">
       </el-table-column>
-      <el-table-column prop="dataStatus" label="状态" width="300" :formatter="statusFormate">
+      <el-table-column prop="dataStatus" label="状态" width="80" :formatter="statusFormate">
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
@@ -61,8 +61,14 @@
       </zjy-pagination>
     </div>
 
-    <el-dialog title="保单审批" :visible.sync="insuranceVisible" width="800px">
-      <insurance-process :data="setting" v-model="value"></insurance-process>
+    <el-dialog title="保单审批" :visible.sync="visible" width="800px">
+      <insurance-process 
+        :data="setting" 
+        v-model="value"
+        :closed="!visible"
+        @submit="handleSubmit"
+      >
+      </insurance-process>
     </el-dialog>
   </div>
 </template>
@@ -84,7 +90,7 @@ export default {
       list: [],
       limit: 10,
       total: 0,
-      insuranceVisible: false,
+      visible: false,
       query: {
         offset: 0,
         limit: 10,
@@ -98,12 +104,24 @@ export default {
 
   methods: {
     search() {},
+
     currentChange() {},
     // 批量投保
     batch() {},
+
     dateFormat(row, column, cellValue) {
       return _dateFormat(cellValue)
     },
+
+    handleSubmit(val) {
+      this.visible = false
+      // 查看操作时关闭
+    
+      if (val === 1) {
+        this.refresh()
+      }
+    },
+
     statusFormate(row, column, cellValue) {
       return ['待审批', '已通过', '已拒绝', '审批中', '待确认', '待付款'][
         +cellValue
@@ -117,11 +135,16 @@ export default {
       //   console.log(response)
       // })
       commonAPI.queryApprovalProcess(row.studentId, row.insuranceUid).then(response => {
-        console.log(response)
         this.setting = row
         this.value = response.data
-        this.insuranceVisible = true
+        this.visible = true
       })
+    },
+
+    refresh() {
+      const old = this.currentPage
+      this.currentPage = -1
+      setTimeout(() => this.currentPage = old, 100)
     }
   },
 
@@ -143,9 +166,12 @@ export default {
         insuranceManageAPI
           .queryForList(this.query)
           .then(response => {
+            
             this.list = response.rows
             this.total = response.total
+          
             this.loading = false
+           
           })
           .catch(err => {
             this.loading = false

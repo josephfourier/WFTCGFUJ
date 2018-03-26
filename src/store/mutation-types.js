@@ -8,3 +8,4 @@ export const TOGGLE_SIDEBAR   =   'TOGGLE_SIDEBAR'
 export const SET_SYSTEM       =   'SET_SYSTEM'
 
 export const SET_PERMISSIONS  =   'SET_PERMISSIONS'
+export const SET_APPROVES     =   'SET_APPROVES'

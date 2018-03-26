@@ -2,14 +2,21 @@ import * as types from '../mutation-types'
 import { resolve } from '@/utils'
 import { NotFound } from '@/views/index'
 
+import permissionAPI from '@/api/permission'
+
 const state = {
   permissionRoutes: [],
-  permissions: []
+  permissions: [],
+  approves: []
 }
 
 const mutations = {
   [types.SET_PERMISSIONS] (state, permissions) {
     state.permissions = permissions
+  },
+
+  [types.SET_APPROVES] (state, approves) {
+    state.approves = approves
   },
 
   [types.SET_ROUTES] (state, routes) {
@@ -54,6 +61,12 @@ const actions = {
     return new Promise(resolve => {
       commit(types.SET_PERMISSIONS, permissions)
       resolve()
+    })
+  },
+
+  setApproves ({ commit }) {
+    permissionAPI.getApproves().then(response => {
+      commit(types.SET_APPROVES, response.data)
     })
   }
 }

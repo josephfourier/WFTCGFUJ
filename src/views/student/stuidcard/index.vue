@@ -99,6 +99,8 @@ import ZjyInput from '@/components/input'
 import ZjyButton from '@/components/button'
 import { ZjyStep, ZjySteps } from '@/components/steps'
 
+import { getPermissionId } from '@/utils'
+
 export default {
   data() {
     return {
@@ -162,7 +164,7 @@ export default {
       }
       // 查询初始流程信息
       cardAPI
-        .queryInitial(150)
+        .queryInitial(getPermissionId(this.$route))
         .then(response => {
           this.steps = response.data.swmsApprovals.sort(
             (x, y) => x.approvalStep - y.approvalStep
@@ -259,7 +261,7 @@ export default {
           }
           // 查询初始流程信息
           cardAPI
-            .queryInitial(150)
+            .queryInitial(getPermissionId(this.$route))
             .then(response => {
               if (!response.data.swmsApprovals) {
                 this.empty = '还未配置流程'
@@ -398,10 +400,6 @@ export default {
   }
 }
 
-.status {
-  font-size: 14px;
-  color: #ed7734;
-}
 
 .el-step__title {
   font-size: 16px;
@@ -409,16 +407,4 @@ export default {
   margin: 5px 0 0 0;
 }
 
-
-.status {
-  &.statusNo {
-    color: #ed7734;
-  }
-  &.statusYes {
-    color: #37c6d3;
-  }
-  &.statusWait {
-    color: #ed7734;
-  }
-}
 </style>

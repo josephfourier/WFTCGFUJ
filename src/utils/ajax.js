@@ -17,6 +17,10 @@ ajax.interceptors.request.use(config => {
       Object.assign(config.params, {
         _t: new Date().getTime()
       })
+    } else {
+      config.params = {
+        _t: new Date().getTime()
+      }
     }
   }
   return config
@@ -29,8 +33,10 @@ ajax.interceptors.response.use(response => {
 
   // 定义失效或其它信息
   switch (resp.code) {
+    // case 0: alert(resp.message); break
     case 30002: relogin(); break
     case 30001: reback(); break
+    // case 0: alert('系统出错了'); window.location.herf = procress.env.SSO_URL; break
     default: return resp
   }
 },

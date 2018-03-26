@@ -329,17 +329,5 @@ export default {
 .zjy-textarea {
   height: 100px;
 }
-
-.status {
-  &.statusNo {
-    color: #ed7734;
-  }
-  &.statusYes {
-    color: #37c6d3;
-  }
-  &.statusWait {
-    color: #ed7734;
-  }
-}
 </style>
 

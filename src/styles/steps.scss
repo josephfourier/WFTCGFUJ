@@ -69,4 +69,47 @@
     width: 130px;
     margin: 0 auto;
   }
+
+  
+.status {
+  font-size: 14px;
+  color: #ed7734;
+}
+
+.status {
+  &.statusNo {
+    color: #ed7734;
+  }
+  &.statusYes {
+    color: #37c6d3;
+  }
+  &.statusWait {
+    color: #ed7734;
+  }
+}
+
+
+  .title {
+    font-weight: bold;
+  }
+
+}
+
+.refused {
+  height: 54px;
+  background-color: #f5f5f5;
+  font-size: 14px;
+  color: #333333;
+  line-height: 54px;
+  text-indent: 15px;
+  margin: 30px 0 15px 0;
+   font-weight: bold;
+}
+
+.reason {
+  margin-bottom: 10px;
+}
+
+.zjy-textarea {
+  height: 100px;
 }

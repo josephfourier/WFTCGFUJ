@@ -31,14 +31,11 @@
                 ({{ item.teacherName }})
               </div>
               <div v-else>
-                <!-- 当前流程动态绑定 -->
-                <p v-if="index === step - 1 && value">
+                <p v-if="index === step - 1 && approver">
                   ({{ nextApproverName }})
                 </p>
-                <!-- 其它只绑定一次,也可以不绑定(还未选择教师) -->
-                <!-- <span v-else v-once>({{ value }})</span> -->
+               
               </div>
-              <!--  -->
               <div v-if="index <= step - 1 && item.approvalStatus">
                 <p :class="[
                 { statusYes: item.approvalStatus == 1 },
@@ -50,20 +47,20 @@
                 </p>
               </div>
             </div>
-            <!-- 只初始化当前流程的教师列表 (index === step - 1) -->
-            <!-- 若存在流程状态属性则不初始化 (approvalStatus) -->
+          
             <el-select 
-            class="zjy-select" 
-            v-model="approver" 
-            placeholder="请选择审批人" 
-            slot="custom" 
-            slot-scope="props" 
-            @change="handleChange" 
-            v-if="props.data.approvalType == 1
-            && index === step - 1 
-            && !props.data.approvalStatus 
-            && isApprovered 
-            && !reason">
+              class="zjy-select" 
+              v-model="approver" 
+              placeholder="请选择审批人" 
+              slot="custom" 
+              slot-scope="props" 
+              @change="handleChange" 
+              v-if="props.data.approvalType == 1
+              && index === step - 1 
+              && !props.data.approvalStatus 
+              && isApprovered 
+              && !reason"
+            >
               <el-option v-for="item in approverList" :key="item.teacherId" :label="item.teacherName" :value="item.teacherId">
               </el-option>
             </el-select>
@@ -71,7 +68,7 @@
         </zjy-steps>
       </div>
     </panel-item>
-    <div class="zjy-footer">
+    <div class="zjy-footer" v-if="!isFinished && isMyStep">
       <template v-if="!isApprovered">
         <zjy-button type="plain" @click="no">拒绝</zjy-button>
         <zjy-button type="primary" @click="yes">同意</zjy-button>
@@ -127,7 +124,8 @@ export default {
 
   props: {
     data: Object,
-    value: Object
+    value: Object,
+    closed: Boolean
   },
 
   computed: {
@@ -147,9 +145,7 @@ export default {
     handleChange(val) {
       this.nextApproverId = val
       if (this.hasNextApprover)
-        this.nextApproverName = this.approverList.find(
-          x => x.teacherId === val
-        ).teacherName
+        this.nextApproverName = this.approverList.find(x => x.teacherId === val).teacherName
     },
 
     yes() {
@@ -176,8 +172,14 @@ export default {
       this.reason = ''
     },
 
+    clear () {
+      this.reason = ''
+      this.isFinished = false
+      this.isApprovered = false
+    },
+
     submit() {
-      if (!this.approver && !this.$empty(this.approverList) && !this.reason) {
+      if (this.hasNextApprover && !this.approver  && !this.reason) {
         this.$alert("请选择下一步审批人")
         return
       }
@@ -197,11 +199,11 @@ export default {
         .then(response => {
           if (response.code === 1) {
             this.$alert("保存成功")
-            this.$emit("submit", 0)
           } else {
             this.$alert("保存失败")
-            this.$emit("submit", 1)
           }
+          this.clear()
+          this.$emit("submit", 1)
         })
         .catch(error => {})
     }
@@ -243,6 +245,10 @@ export default {
     isApprovered(val) {
       if (val) this.step++
       else this.step--
+    },
+
+    closed(val) {
+      if (val) this.clear()
     }
   }
 }

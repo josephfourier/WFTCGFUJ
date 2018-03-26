@@ -19,6 +19,7 @@
       @create="create" 
       @config="config"
       :highlights="[true, false]"
+      :loading="loading"
     >
       <a slot="header">添加步骤</a>
     </MultiMenu>
@@ -180,7 +181,8 @@ export default {
       defaultSelectedTeacher: {},
 
       currentUid: '',
-      currentStep: -1
+      currentStep: -1,
+      loading: false
     }
   },
 
@@ -192,6 +194,7 @@ export default {
 
     // 根据id查询步骤列表
     queryApprovalProcess(id) {
+      this.loading = true
       approvalAPI
         .queryApprovalProcess(id)
         .then(resp => {
@@ -201,6 +204,7 @@ export default {
            : resp.data
             .filter(x => x.templateUid)
             .sort((x, y) => +x.approvalStep - +y.approvalStep)
+            this.loading = false
         
         }
         )

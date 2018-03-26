@@ -1,5 +1,5 @@
 <template>
-  <div class="zjy-menu-panel" :style="{width: width}">
+  <div class="zjy-menu-panel" :style="{width: width}" v-loading="innderLoading">
     <div class="zjy-menu-panel__header">
       <span>{{ title }}</span>
       <slot name="header"></slot>
@@ -14,7 +14,7 @@
       <table v-if="type === 'table'" class="zjy-menu-panel__table">
         <slot name="th"></slot>
         <slot name="tip"></slot>
-        <slot name="tr" v-for="(item,index) in filteredData" :arg="item" :del="index === filteredData.length -1" :border="index > 5 && index === filteredData.length -1 ? false : true"></slot>
+        <slot name="tr" v-for="(item,index) in filteredData" :arg="item" :del="index === filteredData.length -1" :border="index > 3 && index === filteredData.length -1 ? false : true"></slot>
       </table>
       <ul v-else class="zjy-menu-panel__list">
 
@@ -46,7 +46,8 @@ export default {
     return {
       query: '',
       selected: {},
-      radio: -1
+      radio: -1,
+      innderLoading: false
     }
   },
 
@@ -122,7 +123,8 @@ export default {
     // 耦合度较高!
     dialogVisible: Boolean,
     handler: String,
-    level: String
+    level: String,
+    loading: Boolean
   },
 
   computed: {
@@ -175,6 +177,11 @@ export default {
     handler(val, old) {
       if (Object.keys(this.defaultSelected).length === 0)
         this.radio = '-1'
+    },
+
+    loading(val) {
+      if (val) this.innderLoading = true
+      else this.innderLoading = false
     }
   }
 }
@@ -214,7 +221,7 @@ export default {
 
   .zjy-menu-panel__body {
     border: 1px solid #c6c6c6;
-    min-height: 280px;
+    min-height: 246px;
     .zjy-search__input {
       border-bottom: 1px solid #c6c6cc;
       height: 39px;

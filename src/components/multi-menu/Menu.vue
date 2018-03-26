@@ -14,7 +14,7 @@
       @selected-change="selectedChange">
     </menu-item>
     <menu-item 
-      v-bind="$props" 
+      v-bind="$props"
       class="sub-menu" 
       :data="value" 
       :title="titles[1]" 
@@ -139,6 +139,7 @@ export default {
     dialogVisible: Boolean,
     level: String,
     handler: String,
+    loading: Boolean
   },
   methods: {
     create() {

@@ -108,6 +108,10 @@ export default {
     MyApplication
   },
 
+  props: {
+    active: Boolean
+  },
+
   watch: {
     currentPage: {
       immediate: true,
@@ -131,6 +135,10 @@ export default {
 
     list(val) {
       this.empty = val.length === 0 ? '暂无数据' : '数据加载中....'
+    },
+
+    active(val) {
+      if (val) this.refresh()
     }
   }
 }

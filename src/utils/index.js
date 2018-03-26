@@ -12,7 +12,8 @@ let resolve = (resource, list, routes) => {
         component: () => import('@/views' + item.uri + '.vue'),
         meta: {
           icon: item.icon,
-          status: item.status
+          status: item.status,
+          permissionId: item.permissionId // 菜单权限id 根据菜单id取流程模板时可以用到
         }
       }
     })
@@ -79,6 +80,8 @@ let selfMerge = (resource, target) => {
   }
 }
 
+let getPermissionId = (route) => route.meta.permissionId
+
 let dateFormat =  val => {
   if (!val) return
   const date = new Date(val)
@@ -93,4 +96,4 @@ let dateFormat =  val => {
   )
 }
 
-export { resolve, relogin, reback, param2Obj, selfMerge, dateFormat }
+export { resolve, relogin, reback, param2Obj, selfMerge, dateFormat, getPermissionId }

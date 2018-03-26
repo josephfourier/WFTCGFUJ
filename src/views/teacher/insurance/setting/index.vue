@@ -16,7 +16,15 @@
           </div>
         </div>
       </div>
-      <el-table ref="insuranceTable" @selection-change="handleSelectionChange" :data="insuranceList" style="width: 100%" :row-style="rowStyle" :header-row-style="rowStyle" :header-cell-style="rowStyle" v-loading="loading">
+      <el-table 
+        @selection-change="handleSelectionChange" 
+        :data="insuranceList" 
+        style="width: 100%" 
+        :row-style="rowStyle" 
+        :header-row-style="rowStyle" 
+        :header-cell-style="rowStyle" 
+        v-loading="loading"
+      >
         <el-table-column type="selection" width="30">
         </el-table-column>
         <el-table-column type="index" label="序号" :index="1" width="45">

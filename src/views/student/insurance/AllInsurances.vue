@@ -25,7 +25,7 @@
                 <span>查看</span>
               </a>
 
-              <a href="javascript:" @click="create(scope.row)" class="zjy-btn-delete">
+              <a href="javascript:" @click="create(scope.row)" class="zjy-btn-delete" v-if="scope.row.applyStatus ==='0'">
                 <i class="zjy-icon"></i>
                 <span>申请</span>
               </a>
@@ -42,7 +42,13 @@
     </div>
 
     <el-dialog :title="title" :visible.sync="visible" width="800px">
-      <application :data="setting" v-model="value" :closed="!visible" @submit="handleSubmit"></application>
+      <application 
+        :data="setting" 
+        v-model="value" 
+        :closed="!visible"
+        :type="type"
+        @submit="handleSubmit"
+      ></application>
     </el-dialog>
   </div>
 </template>
@@ -52,6 +58,7 @@ import insuranceAPI from '@/api/student/insurance/all'
 import commonAPI from '@/api/common'
 import ZjyPagination from '@/components/pagination'
 import Application from './Application'
+import { getPermissionId } from '@/utils'
 
 import axios from 'axios'
 
@@ -70,16 +77,28 @@ export default {
       title: '保单详情',
       empty: '数据加载中....',
       loading: false,
-      visible: false
+      visible: false,
+      type: 1, // 查看或申请操作
+      types: {
+        VIEW  :   1,
+        APPLY :   2
+      }
     }
   },
 
   methods: {
     statusFormate(row, column, cellValue) {
-      return ['可申请', '申请中', '未申请'][+cellValue]
+      return ['可申请', '申请中'][+cellValue]
     },
 
-    handleSubmit() {},
+    handleSubmit(val) {
+      this.visible = false
+      // 查看操作时关闭
+    
+      if (val === 1) {
+        this.refresh()
+      }
+    },
 
     rowStyle({ row, rowIndex }) {
       return {
@@ -89,6 +108,7 @@ export default {
 
     view(row) {
       this.title = '保单详情'
+      this.type = this.types.VIEW
       insuranceAPI
         .queryForObject(row.inssettingUid)
         .then(response => {
@@ -100,9 +120,11 @@ export default {
 
     create(row) {
       this.title = '保单申请'
+      this.type = this.types.APPLY
+
       axios
         .all([
-          commonAPI.queryInitial(151),
+          commonAPI.queryInitial(getPermissionId(this.$route)),
           insuranceAPI.queryForObject(row.inssettingUid)
         ])
         .then(
@@ -132,6 +154,10 @@ export default {
     Application
   },
 
+  props: {
+    active: Boolean
+  },
+
   watch: {
     currentPage: {
       immediate: true,
@@ -155,6 +181,10 @@ export default {
 
     list(val) {
       this.empty = val.length === 0 ? '暂无数据' : '数据加载中....'
+    },
+
+    active(val) {
+      if (val) this.refresh()
     }
   }
 }

@@ -30,6 +30,7 @@
     }
     .el-tabs__item:focus.is-active.is-focus:not(:active) {
       box-shadow: none;
+      border-radius: 5px 5px 0 0;
     }
 
   }
