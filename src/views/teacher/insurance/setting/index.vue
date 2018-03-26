@@ -89,7 +89,7 @@ export default {
       empty: '数据加载中....',
       loading: false,
       visible: false,
-      type: 1, // 1编辑 2修改
+      type: 1, // 1编辑 2新增
       setting: {
         insuranceName: '',
         insuranceCompany: '',

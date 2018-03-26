@@ -89,10 +89,17 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           if (this.type === 1)
-            insuranceAPI.update(this.formData.inssettingUid, this.formData)
+            insuranceAPI.update(this.formData.inssettingUid, this.formData).then(response => {
+              if (response.code === 1) {
+                this.$emit('closed', 1)
+              }
+            })
           else
-            insuranceAPI.create(this.formData)
-            this.$emit('closed')
+            insuranceAPI.create(this.formData).then(response => {
+              if (response.code === 1) {
+                this.$emit('closed', 1)
+              }
+            })
         } else {
           return false
         }

@@ -124,6 +124,7 @@ export default {
     },
 
     accountList(val, oldVal) {
+      if (!val) return
       if (val.length === 0) this.empty = '暂无数据'
       this.empty = val.length === 0 ? '暂无数据' : '数据加载中....'
     }
