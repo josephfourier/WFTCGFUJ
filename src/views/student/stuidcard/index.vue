@@ -37,7 +37,7 @@
     </div>
     <div v-if="steps.length !== 0">
       <div class="zjy-steps">
-        <span>申请流程配置</span>
+        <p>申请流程配置</p>
         <zjy-steps :active="step" align-center>
           <zjy-step title="发起人" :description="'(' + student.studentName + ')'" v-if="steps.length !== 0">
           </zjy-step>
@@ -361,9 +361,12 @@ export default {
 }
 
 .zjy-steps {
+  width: 1129px;
+  overflow: auto;
   margin-top: 20px;
-  span {
+  p {
     margin-left: 10px;
+    margin-bottom: 10px;
   }
 }
 
