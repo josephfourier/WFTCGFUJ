@@ -364,6 +364,7 @@ export default {
   width: 1129px;
   overflow: auto;
   margin-top: 20px;
+  padding-bottom: 10px;
   p {
     margin-left: 10px;
     margin-bottom: 10px;
