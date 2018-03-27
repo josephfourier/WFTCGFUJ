@@ -34,7 +34,7 @@
       </el-table>
 
       <el-dialog title="请输入档案材料名称" :visible.sync="visible" width="800px">
-        <stufile :formData="stufile" :list="list" :type="type" @close="handleClose"></stufile>
+        <stufile :formData="stufile" :list="list" :type="type" @close="handleClose" :closed="!visible"></stufile>
       </el-dialog>
     </div>
   </div>
@@ -82,6 +82,10 @@ export default {
 
     handleClose(val) {
       this.visible = false
+      this.stufile = {
+        stufileName: '',
+        status: '1'
+      }
       if (val !== 0) {
         this.refresh()
       }

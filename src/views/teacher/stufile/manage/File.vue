@@ -53,18 +53,52 @@
 
     </el-form>
     <p class="zjy-form__title">档案材料清单</p>
-
     <zjy-upload 
-      class="upload-demo" 
+      class="zjy-table-upload" 
       :action="action" 
-      :headers="{'Zjy-Token': token}"
+      :headers="{'Zjy-Token': token}" 
       multiple :limit="3" 
-     
-      :file-list="fileList"
+      :showFileList="false" 
+      :file-list="fileList" 
+      :on-progress="handleProgress" 
+      :on-success="handleSuccess" 
+      :on-error="handleError"
     >
-      <el-button size="small" type="primary">点击上传</el-button>
-      <div slot="tip" class="el-upload__tip">上传测试</div>
+      <el-button size="small" type="primary">上传附件</el-button>
+      <!-- <div slot="tip" class="el-upload__tip">上传测试</div> -->
     </zjy-upload>
+
+    <div class="zjy-table">
+      <el-table :data="tableData" style="width: 100%" :show-header="false">
+
+        <el-table-column label="姓名" width="180">
+          <template slot-scope="scope">
+            <el-popover trigger="hover" placement="top">
+              <p>姓名: {{ scope.row.name }}</p>
+              <p>住址: {{ scope.row.address }}</p>
+              <div slot="reference" class="name-wrapper">
+                <el-tag size="medium">{{ scope.row.name }}</el-tag>
+              </div>
+            </el-popover>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <!-- <el-button
+          size="mini"
+          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+        <el-button
+          size="mini"
+          type="danger"
+          @click="handleDelete(scope.$index, scope.row)">删除</el-button> -->
+            <zjy-upload class="zjy-table-upload" :action="action" :headers="{'Zjy-Token': token}" multiple :limit="3" :showFileList="false" :file-list="fileList" :on-progress="handleProgress" :on-success="handleSuccess" :on-error="handleError">
+              <el-button size="small" type="primary">上传附件</el-button>
+              <!-- <div slot="tip" class="el-upload__tip">上传测试</div> -->
+            </zjy-upload>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
     <div class="zjy-footer">
       <zjy-button type="plain" @click="resetForm('data')">取消</zjy-button>
       <zjy-button type="primary" @click="submitForm('data')">提交</zjy-button>
@@ -73,32 +107,54 @@
 </template>
 
 <script>
-import ZjyButton from "@/components/button"
-import stufileManageAPI from "@/api/teacher/stufile/manage"
+import ZjyButton from '@/components/button'
+import stufileManageAPI from '@/api/teacher/stufile/manage'
 import { mpaGetters, mapGetters } from 'vuex'
 import ZjyUpload from '@/components/upload/index'
 
 export default {
   data() {
     return {
+      tableData: [
+        {
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        },
+        {
+          date: '2016-05-04',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1517 弄'
+        },
+        {
+          date: '2016-05-01',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1519 弄'
+        },
+        {
+          date: '2016-05-03',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1516 弄'
+        }
+      ],
       data: {},
-      action: process.env.BASE_URL + '/upload/imageUpload',
+      action: process.env.BASE_URL + 'upload/stufileUpload',
       rules: {
         stufileNo: [
-          { required: true, message: "请输入档案编号", trigger: "blur" }
+          { required: true, message: '请输入档案编号', trigger: 'blur' }
         ],
         recipient: [
-          { required: true, message: "请输入接收人", trigger: "blur" }
+          { required: true, message: '请输入接收人', trigger: 'blur' }
         ],
         stufileDate: [
-          { required: true, message: "请选择建档日期", trigger: "blur" }
+          { required: true, message: '请选择建档日期', trigger: 'blur' }
         ]
       },
-      studentId: "",
+      studentId: '',
       list: [],
       hasError: false,
-      error: "",
-      success: "",
+      error: '',
+      success: '',
 
       fileList: []
     }
@@ -109,6 +165,21 @@ export default {
   },
 
   methods: {
+    handleProgress(event, file, fileList) {
+      // console.log(event)
+    },
+    handleSuccess(response, file, fileList) {
+      // console.log(response)
+    },
+    handleError(err, file, fileList) {
+      console.log(err)
+    },
+    handleEdit(index, row) {
+      console.log(index, row)
+    },
+    handleDelete(index, row) {
+      console.log(index, row)
+    },
     check() {
       return new Promise((resolve, reject) => {
         if (this.studentId) {
@@ -116,21 +187,21 @@ export default {
             if (response.code !== 1) {
               this.hasError = true
               this.error = response.data
-              this.success = ""
+              this.success = ''
               this.clearData()
               reject(false)
             } else {
               this.fillData(response.data)
-              this.error = ""
+              this.error = ''
               this.hasError = false
-              this.success = "success"
+              this.success = 'success'
               resolve(true)
             }
           })
         } else {
           this.hasError = true
-          this.error = "请输入学号"
-          this.success = ""
+          this.error = '请输入学号'
+          this.success = ''
           this.clearData()
           reject(false)
         }
@@ -143,17 +214,17 @@ export default {
 
     reset() {
       this.data = {}
-      this.studentId = ""
+      this.studentId = ''
       this.hasError = false
-      this.error = ""
-      this.success = ""
+      this.error = ''
+      this.success = ''
     },
 
     clearData() {
-      this.data.className = ""
-      this.data.facultyName = ""
-      this.data.studentName = ""
-      this.data.studentNo = ""
+      this.data.className = ''
+      this.data.facultyName = ''
+      this.data.studentName = ''
+      this.data.studentNo = ''
     },
 
     fillData(data) {
@@ -166,7 +237,7 @@ export default {
     resetForm(formName) {
       this.reset()
       this.$refs[formName].resetFields()
-      this.$emit("close")
+      this.$emit('close')
     },
 
     submitForm(formName) {
@@ -176,7 +247,7 @@ export default {
             console.log(response)
             if (response && valid) {
               this.reset()
-              this.$emit("close")
+              this.$emit('close')
             }
           })
           .catch(error => {
@@ -194,7 +265,7 @@ export default {
 
   components: {
     ZjyButton,
-    ZjyUpload    
+    ZjyUpload
   },
 
   watch: {
@@ -207,7 +278,7 @@ export default {
 
     outterClose(val) {
       this.reset()
-      this.$refs["data"].resetFields()
+      this.$refs['data'].resetFields()
     }
   }
 }
@@ -235,5 +306,19 @@ export default {
 }
 .search {
   display: block;
+}
+
+.zjy-table-upload {
+  .el-button--primary {
+    color: #fff;
+    background-color: #36c6d3;
+    border-color: #36c6d3;
+    border-radius: 25px;
+  }
+}
+
+.el-button--small,
+.el-button--small.is-round {
+  padding: 7px 15px;
 }
 </style>

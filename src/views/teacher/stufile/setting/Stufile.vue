@@ -39,7 +39,8 @@ export default {
   props: {
     formData: Object,
     type: Number,
-    list: Array // 因为无分页所以检查重复可以直接在前端做
+    list: Array, // 因为无分页所以检查重复可以直接在前端做
+    closed: Boolean
   },
 
   methods: {
@@ -72,8 +73,15 @@ export default {
 
   components: {
     ZjyButton
-  }
+  },
 
+  watch: {
+    closed(val) {
+      if (val) {
+        this.$refs['formData'].resetFields()
+      }
+    }
+  }
 }
 
 </script>

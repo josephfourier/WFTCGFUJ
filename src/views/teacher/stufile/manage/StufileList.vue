@@ -30,13 +30,22 @@
           <a href="javascript:;" @click="_import">导入</a>
         </div>
       </div>
-
       <div class="zjy-table-oper__item">
         <div class="zjy-table-oper--">
           <a href="javascript:;" @click="_export">导出</a>
         </div>
       </div>
     </div>
+    <transition name="slide-fade">
+      <div class="svg" v-if="show">
+        <svg style="top:5px; left:70px;position: relative;z-index:999;overflow:hidden" width="20" height="10" viewBox="0 0 20 10" xmlns="http://www.w3.org/2000/svg" version="1.1">
+          <polygon points="10,0 20,11 0,11" style="fill:rgb(255,255,255);stroke:rgb(55,198,212);stroke-width:1" />
+        </svg>
+        <div class="upload" >
+          
+        </div>
+      </div>
+    </transition>
     <el-table :data="list" style="width: 100%" v-loading="loading">
       <el-table-column type="selection" width="30">
       </el-table-column>
@@ -56,7 +65,7 @@
       </el-table-column>
       <el-table-column prop="facultyName" label="入学年份" width="120">
       </el-table-column>
-     
+
       <el-table-column label="操作">
         <template slot-scope="scope">
           <a href="javascript:" @click="view(scope.row)" class="zjy-btn-view">
@@ -74,6 +83,7 @@
     </div>
 
     <el-dialog :title="title" :visible.sync="visible" width="800px">
+
       <file :formData="file" @close="handleClose" :outterClose="!visible"></file>
     </el-dialog>
   </div>
@@ -104,17 +114,19 @@ export default {
       },
       loading: false,
       empty: '暂无数据',
-
+      show: false,
       file: {} // 学生档案
     }
   },
 
   methods: {
-    create () {
+    create() {
       this.title = '新增学生档案'
       this.visible = true
     },
-    _import() {},
+    _import() {
+      this.show = !this.show
+    },
     _export() {},
     search() {},
     currentChange() {},
@@ -126,7 +138,7 @@ export default {
     handleSubmit(val) {
       this.visible = false
       // 查看操作时关闭
-    
+
       if (val === 1) {
         this.refresh()
       }
@@ -134,7 +146,7 @@ export default {
     refresh() {
       const old = this.currentPage
       this.currentPage = -1
-      setTimeout(() => this.currentPage = old, 100)
+      setTimeout(() => (this.currentPage = old), 100)
     },
     handleClose() {
       this.visible = false
@@ -182,5 +194,42 @@ export default {
 }
 </script>
 <style lang='scss' scoped>
+.upload {
+  width: 1020px;
+  height: 86px;
+  border: 1px solid #37c6d4;
+  position: relative;
+}
+.slide-fade-enter-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+.arrow {
+  &:after {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 6px;
+    border-bottom-color: #37c6d4;
+    top: -12px;
+    left: 68px;
+  }
+}
 
+.svg {
+    position: relative;
+    top: -16px;
+    margin-bottom: -6px;
+}
 </style>
