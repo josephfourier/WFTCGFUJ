@@ -36,7 +36,6 @@ ajax.interceptors.response.use(response => {
     // case 0: alert(resp.message); break
     case 30002: relogin(); break
     case 30001: reback(); break
-    // case 0: alert('系统出错了'); window.location.herf = procress.env.SSO_URL; break
     default: return resp
   }
 },

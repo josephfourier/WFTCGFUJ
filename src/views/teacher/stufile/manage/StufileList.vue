@@ -50,7 +50,7 @@
       </el-table-column>
       <el-table-column prop="facultyName" label="专业" width="120">
       </el-table-column>
-      <el-table-column prop="facultyName" label="班级" width="120">
+      <el-table-column prop="className" label="班级" width="120">
       </el-table-column>
       <el-table-column prop="applyDate" label="建档日期" :formatter="dateFormat" width="120">
       </el-table-column>
@@ -74,7 +74,7 @@
     </div>
 
     <el-dialog :title="title" :visible.sync="visible" width="800px">
-      <file :formData="file"></file>
+      <file :formData="file" @close="handleClose" :outterClose="!visible"></file>
     </el-dialog>
   </div>
 </template>
@@ -135,6 +135,9 @@ export default {
       const old = this.currentPage
       this.currentPage = -1
       setTimeout(() => this.currentPage = old, 100)
+    },
+    handleClose() {
+      this.visible = false
     }
   },
 

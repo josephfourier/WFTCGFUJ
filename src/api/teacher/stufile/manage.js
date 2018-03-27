@@ -27,5 +27,9 @@ export default {
         }
       }
     })
+  },
+
+  checkExists (id) {
+    return ajax.get('/manage/stufile/student/' + id)
   }
 }

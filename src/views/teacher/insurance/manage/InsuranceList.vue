@@ -62,30 +62,25 @@
     </div>
 
     <el-dialog title="保单审批" :visible.sync="visible" width="800px">
-      <insurance-process 
-        :data="setting" 
-        v-model="value"
-        :closed="!visible"
-        @submit="handleSubmit"
-      >
+      <insurance-process :data="setting" v-model="value" :closed="!visible" @submit="handleSubmit">
       </insurance-process>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import insuranceManageAPI from '@/api/teacher/insurance/manage'
-import commonAPI from '@/api/common'
-import { selfMerge, dateFormat as _dateFormat } from '@/utils'
-import ZjyInput from '@/components/input'
-import ZjyPagination from '@/components/pagination'
-import InsuranceProcess from './InsuranceProcess'
+import insuranceManageAPI from "@/api/teacher/insurance/manage"
+import commonAPI from "@/api/common"
+import { selfMerge, dateFormat as _dateFormat } from "@/utils"
+import ZjyInput from "@/components/input"
+import ZjyPagination from "@/components/pagination"
+import InsuranceProcess from "./InsuranceProcess"
 // 审批状态：0-待审批，1-已通过，2-已拒绝，3-审批中，4-待确认，5-待付款
 export default {
   data() {
     return {
       setting: {}, // 保险设置信息
-      value: {},  // 审批流程进度信息
+      value: {}, // 审批流程进度信息
       currentPage: 1,
       list: [],
       limit: 10,
@@ -94,11 +89,12 @@ export default {
       query: {
         offset: 0,
         limit: 10,
-        dataStatus: '',
-        appYear: '',
-        studentCode: ''
+        dataStatus: "",
+        appYear: "",
+        studentCode: ""
       },
-      empty: '数据加载中....'
+      loading: false,
+      empty: "暂无数据"
     }
   },
 
@@ -116,35 +112,37 @@ export default {
     handleSubmit(val) {
       this.visible = false
       // 查看操作时关闭
-    
+
       if (val === 1) {
         this.refresh()
       }
     },
 
     statusFormate(row, column, cellValue) {
-      return ['待审批', '已通过', '已拒绝', '审批中', '待确认', '待付款'][
+      return ["待审批", "已通过", "已拒绝", "审批中", "待确认", "待付款"][
         +cellValue
       ]
     },
-    
+
     // 保单审批
     view(row) {
       console.log(row)
       // insuranceManageAPI.queryForObject(row.insuranceUid).then(response => {
       //   console.log(response)
       // })
-      commonAPI.queryApprovalProcess(row.studentId, row.insuranceUid).then(response => {
-        this.setting = row
-        this.value = response.data
-        this.visible = true
-      })
+      commonAPI
+        .queryApprovalProcess(row.studentId, row.insuranceUid)
+        .then(response => {
+          this.setting = row
+          this.value = response.data
+          this.visible = true
+        })
     },
 
     refresh() {
       const old = this.currentPage
       this.currentPage = -1
-      setTimeout(() => this.currentPage = old, 100)
+      setTimeout(() => (this.currentPage = old), 100)
     }
   },
 
@@ -166,12 +164,14 @@ export default {
         insuranceManageAPI
           .queryForList(this.query)
           .then(response => {
-            
-            this.list = response.rows
-            this.total = response.total
-          
+            if (response.code !== 1) {
+              // this.empty = response.message
+              alert(response.message)
+            } else {
+              this.list = response.rows
+              this.total = response.total
+            }
             this.loading = false
-           
           })
           .catch(err => {
             this.loading = false
@@ -181,7 +181,7 @@ export default {
 
     list(val) {
       if (!val) return
-      this.empty = val.length === 0 ? '暂无数据' : '数据加载中....'
+      this.empty = val.length === 0 ? "暂无数据" : "数据加载中...."
     }
   }
 }
