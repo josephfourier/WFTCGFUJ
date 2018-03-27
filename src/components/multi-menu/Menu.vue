@@ -45,7 +45,10 @@
 
       <tr slot="tr" slot-scope="props" :style="{borderBottom: !props.border ? 'none' : ''}">
         <td>{{ props.arg.approvalStep }}</td>
-        <td>{{ props.arg.teacherName || props.arg.postName }}</td>
+        <td v-if="props.arg.approvalType ==1">
+          {{ props.arg.postName }}
+        </td>
+        <td v-else>{{ props.arg.teacherName }}</td>
         <td>
           <a href="javascript:" @click="config(props)" class="zjy-btn-config">
             <i class="zjy-icon"></i><span>配置</span>

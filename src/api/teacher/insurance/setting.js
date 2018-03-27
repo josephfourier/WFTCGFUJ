@@ -1,5 +1,4 @@
 import ajax from '@/utils/ajax'
-import { selfMerge } from '@/utils'
 
 export default {
   queryForList (query) {
@@ -11,7 +10,9 @@ export default {
 
         const total = json.data.total
         const rows = json.data.rows
+        const code = json.code
         return {
+          code,
           total,
           rows
         }
