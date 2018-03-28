@@ -6,7 +6,10 @@
       <el-row>
         <el-col :span="12">
           <el-form-item label="学号:" prop="studentNo" class="inline">
-            <el-input @change="handleChange" v-model="studentNo" :class="[{'is-error': hasError}, {'is-success': success},'search-input']">
+            <el-input @change="handleChange" 
+            v-model="studentNo" 
+            :class="[{'is-error': hasError}, {'is-success': success},'search-input']"
+            :disabled="type === 1">
               <div class="search" slot="append" @click="check">
                 <img src="@/assets/images/zjy-icon-search.png" alt="搜索">
               </div>
@@ -85,7 +88,7 @@
     <zjy-input type="textarea" v-model="data.stufileDescription"></zjy-input>
 
     <div class="zjy-footer">
-      <zjy-button type="plain" @click="resetForm('data')">取消</zjy-button>
+      <zjy-button type="plain" @click="$emit('close')">取消</zjy-button>
       <zjy-button type="primary" @click="submitForm('data')">提交</zjy-button>
     </div>
   </div>
@@ -140,10 +143,6 @@ export default {
       this.fileList[index].stufileName = ""
     },
 
-    start(index) {
-      this.$refs["upload" + index].submit()
-    },
-
     handleUpload(index, row) {},
 
     handleProgress(event, file, fileList) {
@@ -158,13 +157,13 @@ export default {
       ].stufilesettingUid = this.activeSettingId
 
       return true
-      //return Promise.reject()
     },
 
     handleSuccess(response, file, fileList) {
-      const path = response.data.split("?")[0]
-      const index = response.data.split("?")[1].replace(/index=/gi, "")
-      this.fileList[index].status = fileList[0].status
+      const path = response.data.substring(0, response.data.lastIndexOf('?index='))
+     
+      const index = response.data.substring(response.data.lastIndexOf('?index=') + 7, response.data.length)
+
       this.fileList[index].stufilePath = path
     },
 
@@ -181,6 +180,7 @@ export default {
     },
 
     check() {
+      if (this.type === 1) return
       return new Promise((resolve, reject) => {
         if (this.studentNo) {
           stufileManageAPI.checkExists(this.studentNo).then(response => {
@@ -188,7 +188,6 @@ export default {
               this.hasError = true
               this.error = response.data
               this.success = ""
-              this.clearData()
               reject(false)
             } else {
               this.fillData(response.data)
@@ -202,26 +201,18 @@ export default {
           this.hasError = true
           this.error = "请输入学号"
           this.success = ""
-          this.clearData()
         }
       })
     },
 
     handleChange() {
-      this.clearData()
+      // this.clearData()
     },
 
     resetValidate() {
       this.hasError = false
       this.error = ""
       this.success = ""
-    },
-
-    clearData() {
-      this.data.className = ""
-      this.data.facultyName = ""
-      this.data.studentName = ""
-      this.data.studentNo = ""
     },
 
     fillData(data) {
@@ -232,18 +223,12 @@ export default {
       this.data.studentId = data.studentId
     },
 
-    resetForm(formName) {
-      this.resetValidate()
-      this.$refs[formName].resetFields()
-      this.$emit("close")
-    },
-
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         let arg = {}
 
         arg.studentId = this.formData.studentId
-        arg.stufileNo = this.formData.stufileNo + this.formData.studentId
+        arg.stufileNo = this.type === 1 ? this.formData.stufileNo : this.formData.stufileNo + this.studentNo
         arg.recipient = this.formData.recipient
         arg.schoolCode = this.formData.schoolCode
         ;(arg.stufileDate = new Date(this.formData.stufileDate).getTime()),
@@ -253,14 +238,26 @@ export default {
         let stufileListList = []
         this.fileList.forEach((item, index) => {
           if (item.stufilePath) {
-            stufileListList.push({
-              listUid: item.listUid,
-              stufileUid: item.stufileUid,
-              stufilePath: item.stufilePath,
-              swmsStufileSetting: item.swmsStufileSetting
-            })
+            // if (this.type === 1) {
+              stufileListList.push({
+                listUid: item.listUid,
+                stufileUid: item.stufileUid,
+                stufilePath: item.stufilePath,
+                swmsStufileSetting: item.swmsStufileSetting,
+                stufilesettingUid: item.stufilesettingUid,
+
+              })
+            // }
+
+            // if (this.type === 2) {
+            //   stufileListList.push({
+            //     stufilesettingUid: item.stufilesettingUid,
+            //     stufilePath: item.stufilePath
+            //   })
+            // }
           }
         })
+
         arg.stufileListList = stufileListList
 
         if (this.type === 2) {
@@ -268,8 +265,6 @@ export default {
             .then(response => {
               if (response && valid) {
                 // 验证通过后提交表单数据
-
-                if (this.type === 2) {
                   stufileManageAPI
                     .create(arg)
                     .then(response => {
@@ -284,15 +279,14 @@ export default {
                     .catch(error => {
                       console.log(error)
                     })
-                } else if (this.type === 1) {
-                }
+              
               }
             })
             .catch(error => {
               console.log(error)
               return false
             })
-        } else if (true) {
+        } else if (valid) {
           stufileManageAPI
             .update(this.data.stufileUid, arg)
             .then(response => {
@@ -314,7 +308,6 @@ export default {
 
   props: {
     formData: Object,
-    outterClose: Boolean,
     value: Array, // 学生档案设置列表
     type: Number, // 何种操作
     list: Array
@@ -331,7 +324,6 @@ export default {
       immediate: true,
       handler(val, oldVal) {
         this.data = val
-        this.studentNo = ""
         try {
           if (this.data.ucenterStudent.studentNo) {
             this.studentNo = this.data.ucenterStudent.studentNo
@@ -349,11 +341,6 @@ export default {
       handler(val) {
         this.fileList = val
       }
-    },
-
-    outterClose(val) {
-      this.resetValidate()
-      this.$refs["data"].resetFields()
     }
   }
 }

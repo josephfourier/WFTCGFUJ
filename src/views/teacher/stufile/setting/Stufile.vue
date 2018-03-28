@@ -7,7 +7,7 @@
       </el-form-item>
 
       <div class="zjy-footer">
-        <zjy-button type="plain" @click="resetForm('formData')">取消</zjy-button>
+        <zjy-button type="plain" @click="$emit('close', 0)">取消</zjy-button>
         <zjy-button type="primary" @click="submitForm('formData')">提交</zjy-button>
       </div>
     </el-form>
@@ -40,7 +40,7 @@ export default {
     formData: Object,
     type: Number,
     list: Array, // 因为无分页所以检查重复可以直接在前端做
-    closed: Boolean
+    // closed: Boolean
   },
 
   methods: {
@@ -76,11 +76,11 @@ export default {
   },
 
   watch: {
-    closed(val) {
-      if (val) {
-        this.$refs['formData'].resetFields()
-      }
-    }
+    // closed(val) {
+    //   if (val) {
+    //     this.$refs['formData'].resetFields()
+    //   }
+    // }
   }
 }
 

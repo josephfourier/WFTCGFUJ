@@ -35,7 +35,7 @@
         </el-radio-group>
       </el-form-item>
       <div class="zjy-footer">
-        <zjy-button type="plain" @click="resetForm('formData')">取消</zjy-button>
+        <zjy-button type="plain" @click="$emit('closed', 1)">取消</zjy-button>
         <zjy-button type="primary" @click="submitForm('formData')">提交</zjy-button>
       </div>
     </el-form>
@@ -104,14 +104,9 @@ export default {
           return false
         }
       })
-    },
-    resetForm(formName) {
-      this.$refs[formName].resetFields()
-      this.$emit('closed')
     }
   },
   props: {
-    closed: Boolean,
     formData: Object,
     type: Number
   },
@@ -119,9 +114,6 @@ export default {
     ZjyButton
   },
   watch: {
-    closed(val) {
-      if (val) this.$refs.formData.resetFields()
-    }
   }
 }
 </script>

@@ -124,8 +124,7 @@ export default {
 
   props: {
     data: Object,
-    value: Object,
-    closed: Boolean
+    value: Object
   },
 
   computed: {
@@ -172,11 +171,11 @@ export default {
       this.reason = ''
     },
 
-    clear () {
-      this.reason = ''
-      this.isFinished = false
-      this.isApprovered = false
-    },
+    // clear () {
+    //   this.reason = ''
+    //   this.isFinished = false
+    //   this.isApprovered = false
+    // },
 
     submit() {
       if (this.hasNextApprover && !this.approver  && !this.reason) {
@@ -202,7 +201,7 @@ export default {
           } else {
             this.$alert("保存失败")
           }
-          this.clear()
+          // this.clear()
           this.$emit("submit", 1)
         })
         .catch(error => {})
@@ -247,9 +246,9 @@ export default {
       else this.step--
     },
 
-    closed(val) {
-      if (val) this.clear()
-    }
+    // closed(val) {
+    //   if (val) this.clear()
+    // }
   }
 }
 </script>

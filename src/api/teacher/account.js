@@ -13,7 +13,7 @@ export default {
       transformResponse: (data) => {
         const response = JSON.parse(data).data
         if (JSON.parse(data).code !== 1) return JSON.parse(data)
-
+        const code = JSON.parse(data).code
         let items = []
         response.rows.forEach(item => {
           if (item.departmentInfos.length > 1) {
@@ -58,6 +58,7 @@ export default {
         })
 
         return {
+          code,
           total: response.total || 0,
           items
         }

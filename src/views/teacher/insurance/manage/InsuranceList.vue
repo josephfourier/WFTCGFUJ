@@ -62,7 +62,12 @@
     </div>
 
     <el-dialog title="保单审批" :visible.sync="visible" width="800px">
-      <insurance-process :data="setting" v-model="value" :closed="!visible" @submit="handleSubmit">
+      <insurance-process
+        v-if="visible"
+        :data="setting" 
+        v-model="value"
+        @submit="handleSubmit"
+      >
       </insurance-process>
     </el-dialog>
   </div>

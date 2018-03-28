@@ -84,6 +84,7 @@
     <el-dialog :title="title" :visible.sync="visible" width="800px">
 
       <file 
+        v-if="visible"
         :formData="file"
         v-model="settings" 
         @close="handleClose"
@@ -149,23 +150,23 @@ export default {
     },
 
     edit(row) {
+      
       this.type = 1
       this.title = '编辑学生档案'
       stufileManageAPI.queryForObject(row.stufileUid).then(response => {
+        
         if (response.code !== 1) this.$alert('获取学生档案失败')
         this.file = response.data
-        console.log(response.data)
-        // this.fileList = response.data.stufileListList
         const _ = response.data.stufileListList
         this.clearFileList()
+        
         for (let i = 0; i < this.fileList.length; ++i) {
           for (let j = 0; j < _.length; ++j) {
-            if (this.fileList[i].stufilesettingUid == _[j].swmsStufileSetting.stufilesettingUid) {
+            if (_[j].swmsStufileSetting && this.fileList[i].stufilesettingUid == _[j].swmsStufileSetting.stufilesettingUid) {
               this.fileList[i].stufileName = _[j].swmsStufileSetting.stufileName
               this.fileList[i].stufilePath = _[j].stufilePath
               this.fileList[i].listUid = _[j].listUid
               this.fileList[i].stufileUid = _[j].stufileUid
-              this.fileList[i].swmsStufileSetting = _[j].swmsStufileSetting
             }
           }
         }
@@ -220,9 +221,8 @@ export default {
         this.fileList.push({
           index: i,
           stufileName: "",
-          stufilesettingUid: "",
-          stufilePath: "",
-          stufilesettingUid: this.settings[i].stufilesettingUid
+          stufilesettingUid: this.settings[i].stufilesettingUid,
+          stufilePath: ""
         })
       }
     }).catch(error => {

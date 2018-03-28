@@ -34,7 +34,13 @@
       </el-table>
 
       <el-dialog title="请输入档案材料名称" :visible.sync="visible" width="800px">
-        <stufile :formData="stufile" :list="list" :type="type" @close="handleClose" :closed="!visible"></stufile>
+        <stufile
+          v-if="visible"
+          :formData="stufile" 
+          :list="list" 
+          :type="type" 
+          @close="handleClose"
+        ></stufile>
       </el-dialog>
     </div>
   </div>
@@ -101,7 +107,6 @@ export default {
         })
         .catch(error => {
           this.loading = false
-          console.log(error)
         })
     }
   },

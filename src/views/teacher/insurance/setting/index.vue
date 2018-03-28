@@ -64,7 +64,13 @@
     </div>
 
     <el-dialog :title="title" :visible.sync="visible" width="800px" @close="handleClose">
-      <insurance-setting :formData="setting" :type="type" @closed="handleInnerClose" :closed="!visible"></insurance-setting>
+      <insurance-setting
+        v-if="visible"
+        :formData="setting" 
+        :type="type" 
+        @closed="handleInnerClose"
+      >
+      </insurance-setting>
     </el-dialog>
    
   </div>
@@ -91,13 +97,6 @@ export default {
       visible: false,
       type: 1, // 1编辑 2新增
       setting: {
-        insuranceName: '',
-        insuranceCompany: '',
-        insuranceCategory: '',
-        insuranceLimit: '',
-        insuranceCost: '',
-        detailedTerms: '',
-        insuranceLiability: '',
         isOpen: '1',
         isPay: '1'
       } // 新增投保设置
@@ -106,6 +105,10 @@ export default {
 
   methods: {
     create() {
+      this.setting = {
+        isOpen: '1',
+        isPay: '1'
+      }
       this.title = '新增保险'
       this.type = 2
       this.visible = true

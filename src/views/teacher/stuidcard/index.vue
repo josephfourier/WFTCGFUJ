@@ -245,7 +245,12 @@ export default {
         cardAPI
           .queryForList(this.query)
           .then(response => {
-   
+            console.log(response)
+            if (response.code !== 1) {
+              this.$alert(response.message)
+              return
+            }
+
             this.list = response.rows
             this.total = response.total
             this.loading = false

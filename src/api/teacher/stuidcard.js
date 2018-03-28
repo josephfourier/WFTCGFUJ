@@ -17,9 +17,11 @@ export default {
       params: query,
       transformResponse: data => {
         const json = JSON.parse(data)
+        console.log(json)
         if (json.code !== 1) return json
 
         const total = json.data.total
+        const code = json.code
         const rows = json.data.rows.map(item => {
           return {
             stuidcardUid: item.stuidcardUid,
@@ -34,6 +36,7 @@ export default {
         })
 
         return {
+          code,
           total,
           rows
         }

@@ -154,6 +154,8 @@ export default {
         if (response.code === 1) {
           this.$alert('申请成功')
           this.refresh(1) // 通知父组件刷新 1 正常保存数据刷新 0 只关闭未操作数据不刷新 2失败时处理...
+        } else {
+          this.$alert(response.message)
         }
       }).catch(error => {
 
