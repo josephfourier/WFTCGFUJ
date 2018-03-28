@@ -5,8 +5,8 @@
     <el-form :model="data" :rules="rules" ref="data" label-width="80px">
       <el-row>
         <el-col :span="12">
-          <el-form-item label="学号:" prop="studentId" class="inline">
-            <el-input @change="handleChange" v-model="studentId" :class="[{'is-error': hasError}, {'is-success': success},'search-input']">
+          <el-form-item label="学号:" prop="studentNo" class="inline">
+            <el-input @change="handleChange" v-model="studentNo" :class="[{'is-error': hasError}, {'is-success': success},'search-input']">
               <div class="search" slot="append" @click="check">
                 <img src="@/assets/images/zjy-icon-search.png" alt="搜索">
               </div>
@@ -53,52 +53,37 @@
 
     </el-form>
     <p class="zjy-form__title">档案材料清单</p>
-    <zjy-upload 
-      class="zjy-table-upload" 
-      :action="action" 
-      :headers="{'Zjy-Token': token}" 
-      multiple :limit="3" 
-      :showFileList="false" 
-      :file-list="fileList" 
-      :on-progress="handleProgress" 
-      :on-success="handleSuccess" 
-      :on-error="handleError"
-    >
-      <el-button size="small" type="primary">上传附件</el-button>
-      <!-- <div slot="tip" class="el-upload__tip">上传测试</div> -->
-    </zjy-upload>
 
     <div class="zjy-table">
-      <el-table :data="tableData" style="width: 100%" :show-header="false">
+      <el-table :data="value" style="width: 100%" :show-header="false">
 
-        <el-table-column label="姓名" width="180">
+        <el-table-column label="材料名称" width="280">
           <template slot-scope="scope">
-            <el-popover trigger="hover" placement="top">
-              <p>姓名: {{ scope.row.name }}</p>
-              <p>住址: {{ scope.row.address }}</p>
-              <div slot="reference" class="name-wrapper">
-                <el-tag size="medium">{{ scope.row.name }}</el-tag>
-              </div>
-            </el-popover>
+            <p class="setting-name">{{ scope.row.stufileName }}</p>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="文件上传">
           <template slot-scope="scope">
-            <!-- <el-button
-          size="mini"
-          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-        <el-button
-          size="mini"
-          type="danger"
-          @click="handleDelete(scope.$index, scope.row)">删除</el-button> -->
-            <zjy-upload class="zjy-table-upload" :action="action" :headers="{'Zjy-Token': token}" multiple :limit="3" :showFileList="false" :file-list="fileList" :on-progress="handleProgress" :on-success="handleSuccess" :on-error="handleError">
-              <el-button size="small" type="primary">上传附件</el-button>
-              <!-- <div slot="tip" class="el-upload__tip">上传测试</div> -->
+            <zjy-upload v-if="!fileList[scope.$index].stufilePath" class="zjy-table-upload" :action="action + '?index=' + scope.$index" :headers="{'Zjy-Token': token}" multiple :limit="3" :showFileList="false" :before-upload="handleBeforeUpload" :on-progress="handleProgress" :on-success="handleSuccess" :on-error="handleError" :auto-upload="true">
+              <el-button size="small" type="primary" @click="test(scope.row, scope.$index)">上传附件</el-button>
             </zjy-upload>
+            <p v-else class="file-name">{{ fileList[scope.$index].stufileName }}</p>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="操作" width="180">
+          <template slot-scope="scope">
+            <div v-if="fileList[scope.$index].stufilePath">
+              <a :href="fileList[scope.$index].stufilePath" target="_blank">下载</a>
+              <a href="javascript:;" @click="deleteFile(scope.$index)">删除</a>
+            </div>
           </template>
         </el-table-column>
       </el-table>
     </div>
+    <p class="zjy-form__title">档案说明</p>
+    <zjy-input type="textarea" v-model="data.stufileDescription"></zjy-input>
+
     <div class="zjy-footer">
       <zjy-button type="plain" @click="resetForm('data')">取消</zjy-button>
       <zjy-button type="primary" @click="submitForm('data')">提交</zjy-button>
@@ -107,103 +92,117 @@
 </template>
 
 <script>
-import ZjyButton from '@/components/button'
-import stufileManageAPI from '@/api/teacher/stufile/manage'
-import { mpaGetters, mapGetters } from 'vuex'
-import ZjyUpload from '@/components/upload/index'
+import ZjyButton from "@/components/button"
+import ZjyInput from "@/components/input"
+import stufileManageAPI from "@/api/teacher/stufile/manage"
+import { mpaGetters, mapGetters } from "vuex"
+import ZjyUpload from "@/components/upload/index"
 
 export default {
   data() {
     return {
-      tableData: [
-        {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        },
-        {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
-        },
-        {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        },
-        {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }
-      ],
       data: {},
-      action: process.env.BASE_URL + 'upload/stufileUpload',
+      action: process.env.BASE_URL + "upload/stufileUpload",
       rules: {
         stufileNo: [
-          { required: true, message: '请输入档案编号', trigger: 'blur' }
+          { required: true, message: "请输入档案编号", trigger: "blur" }
         ],
         recipient: [
-          { required: true, message: '请输入接收人', trigger: 'blur' }
+          { required: true, message: "请输入接收人", trigger: "blur" }
         ],
         stufileDate: [
-          { required: true, message: '请选择建档日期', trigger: 'blur' }
+          { required: true, message: "请选择建档日期", trigger: "blur" }
         ]
       },
-      studentId: '',
-      list: [],
+      studentNo: "",
       hasError: false,
-      error: '',
-      success: '',
-
+      error: "",
+      success: "",
+      fileIndex: -1,
+      activeFileIndex: -1,
+      activeSettingId: "",
       fileList: []
     }
   },
 
   computed: {
-    ...mapGetters(['token'])
+    ...mapGetters(["token"])
   },
 
   methods: {
+    test(row, index) {
+      this.activeFileIndex = index
+      this.activeSettingId = row.stufilesettingUid
+    },
+
+    deleteFile(index) {
+      this.fileList[index].stufilePath = ""
+      this.fileList[index].stufileName = ""
+    },
+
+    start(index) {
+      this.$refs["upload" + index].submit()
+    },
+
+    handleUpload(index, row) {},
+
     handleProgress(event, file, fileList) {
       // console.log(event)
     },
-    handleSuccess(response, file, fileList) {
-      // console.log(response)
+
+    handleBeforeUpload(file) {
+      this.fileList[this.activeFileIndex].index = this.activeFileIndex
+      this.fileList[this.activeFileIndex].stufileName = file.name
+      this.fileList[
+        this.activeFileIndex
+      ].stufilesettingUid = this.activeSettingId
+
+      return true
+      //return Promise.reject()
     },
+
+    handleSuccess(response, file, fileList) {
+      const path = response.data.split("?")[0]
+      const index = response.data.split("?")[1].replace(/index=/gi, "")
+      this.fileList[index].status = fileList[0].status
+      this.fileList[index].stufilePath = path
+    },
+
     handleError(err, file, fileList) {
       console.log(err)
     },
+
     handleEdit(index, row) {
       console.log(index, row)
     },
+
     handleDelete(index, row) {
       console.log(index, row)
     },
+
     check() {
       return new Promise((resolve, reject) => {
-        if (this.studentId) {
-          stufileManageAPI.checkExists(this.studentId).then(response => {
+        if (this.studentNo) {
+          stufileManageAPI.checkExists(this.studentNo).then(response => {
             if (response.code !== 1) {
               this.hasError = true
               this.error = response.data
-              this.success = ''
+              this.success = ""
               this.clearData()
               reject(false)
             } else {
               this.fillData(response.data)
-              this.error = ''
+              this.error = ""
               this.hasError = false
-              this.success = 'success'
+              this.success = "success"
               resolve(true)
             }
           })
         } else {
           this.hasError = true
-          this.error = '请输入学号'
-          this.success = ''
+          this.error = "请输入学号"
+          this.success = ""
           this.clearData()
-          reject(false)
         }
       })
     },
@@ -212,19 +211,17 @@ export default {
       this.clearData()
     },
 
-    reset() {
-      this.data = {}
-      this.studentId = ''
+    resetValidate() {
       this.hasError = false
-      this.error = ''
-      this.success = ''
+      this.error = ""
+      this.success = ""
     },
 
     clearData() {
-      this.data.className = ''
-      this.data.facultyName = ''
-      this.data.studentName = ''
-      this.data.studentNo = ''
+      this.data.className = ""
+      this.data.facultyName = ""
+      this.data.studentName = ""
+      this.data.studentNo = ""
     },
 
     fillData(data) {
@@ -232,40 +229,101 @@ export default {
       this.data.facultyName = data.facultyName
       this.data.studentName = data.studentName
       this.data.studentNo = data.studentNo
+      this.data.studentId = data.studentId
     },
 
     resetForm(formName) {
-      this.reset()
+      this.resetValidate()
       this.$refs[formName].resetFields()
-      this.$emit('close')
+      this.$emit("close")
     },
 
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
-        this.check()
-          .then(response => {
-            console.log(response)
-            if (response && valid) {
-              this.reset()
-              this.$emit('close')
-            }
-          })
-          .catch(error => {
-            console.log(error)
-            return false
-          })
+        let arg = {}
+
+        arg.studentId = this.formData.studentId
+        arg.stufileNo = this.formData.stufileNo + this.formData.studentId
+        arg.recipient = this.formData.recipient
+        arg.schoolCode = this.formData.schoolCode
+        ;(arg.stufileDate = new Date(this.formData.stufileDate).getTime()),
+          (arg.stufileDescription = this.formData.stufileDescription)
+        arg.status = 1
+
+        let stufileListList = []
+        this.fileList.forEach((item, index) => {
+          if (item.stufilePath) {
+            stufileListList.push({
+              listUid: item.listUid,
+              stufileUid: item.stufileUid,
+              stufilePath: item.stufilePath,
+              swmsStufileSetting: item.swmsStufileSetting
+            })
+          }
+        })
+        arg.stufileListList = stufileListList
+
+        if (this.type === 2) {
+          this.check()
+            .then(response => {
+              if (response && valid) {
+                // 验证通过后提交表单数据
+
+                if (this.type === 2) {
+                  stufileManageAPI
+                    .create(arg)
+                    .then(response => {
+                      if (response.code === 1) {
+                        this.$alert("添加成功")
+                        this.resetValidate()
+                        this.$emit("close")
+                      } else {
+                        this.$alert(response.message)
+                      }
+                    })
+                    .catch(error => {
+                      console.log(error)
+                    })
+                } else if (this.type === 1) {
+                }
+              }
+            })
+            .catch(error => {
+              console.log(error)
+              return false
+            })
+        } else if (true) {
+          stufileManageAPI
+            .update(this.data.stufileUid, arg)
+            .then(response => {
+              if (response.code === 1) {
+                this.$alert("修改成功")
+                this.resetValidate()
+                this.$emit("close")
+              } else {
+                this.$alert(response.message)
+              }
+            })
+            .catch(error => {
+              console.log(error)
+            })
+        }
       })
     }
   },
 
   props: {
     formData: Object,
-    outterClose: Boolean
+    outterClose: Boolean,
+    value: Array, // 学生档案设置列表
+    type: Number, // 何种操作
+    list: Array
   },
 
   components: {
     ZjyButton,
-    ZjyUpload
+    ZjyUpload,
+    ZjyInput
   },
 
   watch: {
@@ -273,12 +331,29 @@ export default {
       immediate: true,
       handler(val, oldVal) {
         this.data = val
+        this.studentNo = ""
+        try {
+          if (this.data.ucenterStudent.studentNo) {
+            this.studentNo = this.data.ucenterStudent.studentNo
+            this.data.studentName = this.data.ucenterStudent.studentName
+            this.data.className = this.data.ucenterStudent.className
+            this.data.facultyName = this.data.ucenterStudent.facultyName
+            this.data.studentNo = this.data.ucenterStudent.studentNo
+          }
+        } catch (e) {}
+      }
+    },
+
+    list: {
+      immediate: true,
+      handler(val) {
+        this.fileList = val
       }
     },
 
     outterClose(val) {
-      this.reset()
-      this.$refs['data'].resetFields()
+      this.resetValidate()
+      this.$refs["data"].resetFields()
     }
   }
 }
@@ -320,5 +395,10 @@ export default {
 .el-button--small,
 .el-button--small.is-round {
   padding: 7px 15px;
+}
+.setting-name {
+  padding: 4px 0;
+}
+.file-name {
 }
 </style>

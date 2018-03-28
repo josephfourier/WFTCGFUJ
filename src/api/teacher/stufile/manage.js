@@ -31,5 +31,17 @@ export default {
 
   checkExists (id) {
     return ajax.get('/manage/stufile/student/' + id)
+  },
+
+  create (arg) {
+    return ajax.post('/manage/stufile', arg)
+  },
+
+  update (id, arg) {
+    return ajax.put('/manage/stufile/' + id, arg)
+  },
+
+  queryForObject (id) {
+    return ajax.get('/manage/stufile/' + id)
   }
 }

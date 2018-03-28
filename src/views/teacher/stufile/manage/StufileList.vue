@@ -38,11 +38,10 @@
     </div>
     <transition name="slide-fade">
       <div class="svg" v-if="show">
-        <svg style="top:5px; left:70px;position: relative;z-index:999;overflow:hidden" width="20" height="10" viewBox="0 0 20 10" xmlns="http://www.w3.org/2000/svg" version="1.1">
+        <svg style="top:5px; left:70px;position:relative;z-index:999;overflow:hidden" width="20" height="10" viewBox="0 0 20 10" xmlns="http://www.w3.org/2000/svg" version="1.1">
           <polygon points="10,0 20,11 0,11" style="fill:rgb(255,255,255);stroke:rgb(55,198,212);stroke-width:1" />
         </svg>
         <div class="upload" >
-          
         </div>
       </div>
     </transition>
@@ -68,9 +67,9 @@
 
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <a href="javascript:" @click="view(scope.row)" class="zjy-btn-view">
+          <a href="javascript:" @click="edit(scope.row)" class="zjy-btn-view">
             <i class="zjy-icon"></i>
-            <span>查看</span>
+            <span>编辑</span>
           </a>
         </template>
       </el-table-column>
@@ -84,13 +83,22 @@
 
     <el-dialog :title="title" :visible.sync="visible" width="800px">
 
-      <file :formData="file" @close="handleClose" :outterClose="!visible"></file>
+      <file 
+        :formData="file"
+        v-model="settings" 
+        @close="handleClose"
+        :type="type"
+        :list="fileList"
+        :outterClose="!visible"
+      ></file>
     </el-dialog>
   </div>
 </template>
 
 <script>
 import stufileManageAPI from '@/api/teacher/stufile/manage'
+import stufileAPI from '@/api/teacher/stufile/setting'
+
 import File from './File'
 import ZjyInput from '@/components/input'
 import ZjyPagination from '@/components/pagination'
@@ -115,20 +123,66 @@ export default {
       loading: false,
       empty: '暂无数据',
       show: false,
-      file: {} // 学生档案
+      file: {}, // 学生档案
+      fileList: [],
+      settings: [],
+      type: 2 //0-查看 1-编辑 2新增
     }
   },
 
   methods: {
+    clearFileList() {
+      for (let i = 0; i < this.fileList.length; ++i) {
+        this.fileList[i].stufileName = ''
+        this.fileList[i].stufilePath = ''
+        this.fileList[i].listUid = ''
+        this.fileList[i].stufileUid = ''
+      }
+    },
+
     create() {
+      this.type = 2
+      this.file = {}
       this.title = '新增学生档案'
       this.visible = true
+      this.clearFileList()
     },
+
+    edit(row) {
+      this.type = 1
+      this.title = '编辑学生档案'
+      stufileManageAPI.queryForObject(row.stufileUid).then(response => {
+        if (response.code !== 1) this.$alert('获取学生档案失败')
+        this.file = response.data
+        console.log(response.data)
+        // this.fileList = response.data.stufileListList
+        const _ = response.data.stufileListList
+        this.clearFileList()
+        for (let i = 0; i < this.fileList.length; ++i) {
+          for (let j = 0; j < _.length; ++j) {
+            if (this.fileList[i].stufilesettingUid == _[j].swmsStufileSetting.stufilesettingUid) {
+              this.fileList[i].stufileName = _[j].swmsStufileSetting.stufileName
+              this.fileList[i].stufilePath = _[j].stufilePath
+              this.fileList[i].listUid = _[j].listUid
+              this.fileList[i].stufileUid = _[j].stufileUid
+              this.fileList[i].swmsStufileSetting = _[j].swmsStufileSetting
+            }
+          }
+        }
+        this.visible = true
+      }).catch(error => {
+
+      })
+    },
+
     _import() {
       this.show = !this.show
     },
+
     _export() {},
+
     search() {},
+
     currentChange() {},
 
     dateFormat(row, column, cellValue) {
@@ -143,17 +197,37 @@ export default {
         this.refresh()
       }
     },
+
     refresh() {
       const old = this.currentPage
       this.currentPage = -1
       setTimeout(() => (this.currentPage = old), 100)
     },
+
     handleClose() {
       this.visible = false
     }
   },
 
-  created() {},
+  created() {
+    stufileAPI.queryForList().then(resposne => {
+      if (resposne.code !==1) {
+        this.$alert('获取档案设置失败')
+        return
+      }
+      this.settings = resposne.data
+      for (let i = 0; i < this.settings.length; ++i) {
+        this.fileList.push({
+          index: i,
+          stufileName: "",
+          stufilesettingUid: "",
+          stufilePath: "",
+          stufilesettingUid: this.settings[i].stufilesettingUid
+        })
+      }
+    }).catch(error => {
+    })
+  },
   components: {
     ZjyInput,
     ZjyPagination,
@@ -171,7 +245,6 @@ export default {
         stufileManageAPI
           .queryForList(this.query)
           .then(response => {
-            console.log(response)
             if (response.code === 1) {
               this.list = response.rows
               this.total = response.total
