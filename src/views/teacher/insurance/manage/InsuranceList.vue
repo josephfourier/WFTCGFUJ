@@ -106,7 +106,9 @@ export default {
   methods: {
     search() {},
 
-    currentChange() {},
+    currentChange(pageNumber) {
+      this.currentChange = pageNumber
+    },
     // 批量投保
     batch() {},
 

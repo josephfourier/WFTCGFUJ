@@ -159,6 +159,10 @@ export default {
         this.file = response.data
         const _ = response.data.stufileListList
         this.clearFileList()
+
+        for (let i = 0; i < this.fileList.length; ++i) {
+           this.fileList[i].stufileUid = row.stufileUid
+        }
         
         for (let i = 0; i < this.fileList.length; ++i) {
           for (let j = 0; j < _.length; ++j) {
@@ -166,7 +170,6 @@ export default {
               this.fileList[i].stufileName = _[j].swmsStufileSetting.stufileName
               this.fileList[i].stufilePath = _[j].stufilePath
               this.fileList[i].listUid = _[j].listUid
-              this.fileList[i].stufileUid = _[j].stufileUid
             }
           }
         }
@@ -184,7 +187,9 @@ export default {
 
     search() {},
 
-    currentChange() {},
+    currentChange(pageNumber) {
+      this.currentPage = pageNumber
+    },
 
     dateFormat(row, column, cellValue) {
       return _dateFormat(cellValue)

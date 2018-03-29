@@ -6,10 +6,7 @@
       <el-row>
         <el-col :span="12">
           <el-form-item label="学号:" prop="studentNo" class="inline">
-            <el-input @change="handleChange" 
-            v-model="studentNo" 
-            :class="[{'is-error': hasError}, {'is-success': success},'search-input']"
-            :disabled="type === 1">
+            <el-input @change="handleChange" v-model="studentNo" :class="[{'is-error': hasError}, {'is-success': success},'search-input']" :disabled="type === 1">
               <div class="search" slot="append" @click="check">
                 <img src="@/assets/images/zjy-icon-search.png" alt="搜索">
               </div>
@@ -58,7 +55,7 @@
     <p class="zjy-form__title">档案材料清单</p>
 
     <div class="zjy-table">
-      <el-table :data="value" style="width: 100%" :show-header="false">
+      <el-table :data="value" style="width: 100%" :show-header="false" v-loading="loading" element-loading-background="rgba(0, 0, 0, 0.2)">
 
         <el-table-column label="材料名称" width="280">
           <template slot-scope="scope">
@@ -67,8 +64,11 @@
         </el-table-column>
         <el-table-column label="文件上传">
           <template slot-scope="scope">
-            <zjy-upload v-if="!fileList[scope.$index].stufilePath" class="zjy-table-upload" :action="action + '?index=' + scope.$index" :headers="{'Zjy-Token': token}" multiple :limit="3" :showFileList="false" :before-upload="handleBeforeUpload" :on-progress="handleProgress" :on-success="handleSuccess" :on-error="handleError" :auto-upload="true">
-              <el-button size="small" type="primary" @click="test(scope.row, scope.$index)">上传附件</el-button>
+            <zjy-upload
+            ref="'upload' + [scope.$index]"
+            :disabled="isUploading"
+            v-if="!fileList[scope.$index].stufilePath" class="zjy-table-upload" :action="action + '?index=' + scope.$index" :headers="{'Zjy-Token': token}" multiple :limit="3" :showFileList="false" :before-upload="handleBeforeUpload" :on-progress="handleProgress" :on-success="handleSuccess" :on-error="handleError" :auto-upload="true" :file-list="fl">
+              <el-button  :disabled="isUploading" size="small" type="primary" @click="test(scope.row, scope.$index)">上传附件</el-button>
             </zjy-upload>
             <p v-else class="file-name">{{ fileList[scope.$index].stufileName }}</p>
           </template>
@@ -76,10 +76,28 @@
 
         <el-table-column label="操作" width="180">
           <template slot-scope="scope">
-            <div v-if="fileList[scope.$index].stufilePath">
-              <a :href="fileList[scope.$index].stufilePath" target="_blank">下载</a>
-              <a href="javascript:;" @click="deleteFile(scope.$index)">删除</a>
+             <transition name="el-fade-in-linear">
+              <div v-if="fileList[scope.$index].stufilePath">
+                <a :href="fileList[scope.$index].stufilePath" target="_blank">下载</a>
+                <a href="javascript:;" @click="deleteFile(scope.$index)">删除</a>
+              </div>
+            </transition>
+
+              <template v-if="!fileList[scope.$index].stufilePath">
+              <p :id="'tip' + scope.$index"></p>
+              <a href="javascript:;" @click="abort">取消上传</a>
+            <div role="progressbar" class="el-progress el-progress--line" color="#8e71c7" :id="'per' + scope.$index">
+              <div class="el-progress-bar">
+                <div class="el-progress-bar__outer" style="height: 6px;">
+                  <div class="el-progress-bar__inner" style="width: 0%;" :ref="'ref' + scope.$index">
+                  </div>
+                </div>
+              </div>
+              <div class="el-progress__text" style="font-size: 14.4px;" :ref="'ref2' + scope.$index">0%</div>
             </div>
+            </template>
+            <!-- <div :ref="'ref' + scope.$index"></div> -->
+            
           </template>
         </el-table-column>
       </el-table>
@@ -124,7 +142,11 @@ export default {
       fileIndex: -1,
       activeFileIndex: -1,
       activeSettingId: "",
-      fileList: []
+      fileList: [],
+      fl: [],
+      loading: false,
+      isUploading: false,
+      pers: []
     }
   },
 
@@ -133,7 +155,11 @@ export default {
   },
 
   methods: {
+    abort() {
+      this.$refs['upload' + this.index].abort()
+    },
     test(row, index) {
+      if (this.isUploading) return
       this.activeFileIndex = index
       this.activeSettingId = row.stufilesettingUid
     },
@@ -146,25 +172,66 @@ export default {
     handleUpload(index, row) {},
 
     handleProgress(event, file, fileList) {
-      // console.log(event)
+    
+     
+      // this.loading = true
+      this.isUploading = true
+      const index = this.activeFileIndex
+      document.querySelector("#tip" + index).innerHTML = ""
+      this.$refs["ref" + index].style.width = event.percent + '%'
+      this.$refs["ref2" + index].innerHTML = Math.floor(event.percent ) + '%'
+        // Math.floor(event.percent) < 100 ? event.percent + '%' : ""
     },
 
     handleBeforeUpload(file) {
+      
       this.fileList[this.activeFileIndex].index = this.activeFileIndex
       this.fileList[this.activeFileIndex].stufileName = file.name
+      this.fileList[this.activeFileIndex].uid = file.uid
       this.fileList[
         this.activeFileIndex
       ].stufilesettingUid = this.activeSettingId
 
+      this.$refs["ref" + this.activeFileIndex].style.width = 0 + '%'
+      this.$refs["ref2" + this.activeFileIndex].innerHTML = 0 + '%'
+      document.querySelector("#per" + this.activeFileIndex).style.display = 'block'
       return true
     },
 
     handleSuccess(response, file, fileList) {
-      const path = response.data.substring(0, response.data.lastIndexOf('?index='))
-     
-      const index = response.data.substring(response.data.lastIndexOf('?index=') + 7, response.data.length)
+      try {
+        let which = -1
+        which = this.fileList.findIndex(x => x.uid === file.uid)
+
+      if (response.code !== 1 && which !== -1) {
+        this.$refs["ref" + which].innerText = "上传失败"
+        document.querySelector("#tip" + which).title = response.message
+        document.querySelector("#tip" + which).innerHTML = "上传失败"
+        document.querySelector("#per" + which).style.display = 'none'
+        this.$alert(response.message)
+        this.loading = false
+              this.isUploading = false
+        return
+      }
+
+      const path = response.data.substring(
+        0,
+        response.data.lastIndexOf("?index=")
+      )
+
+      const index = response.data.substring(
+        response.data.lastIndexOf("?index=") + 7,
+        response.data.length
+      )
 
       this.fileList[index].stufilePath = path
+
+      this.$refs["ref" + which].innerHTML = ""
+      this.loading = false
+      this.isUploading = false
+      } catch (e) {
+
+      }
     },
 
     handleError(err, file, fileList) {
@@ -216,45 +283,37 @@ export default {
     },
 
     fillData(data) {
-      this.data.className = data.className
-      this.data.facultyName = data.facultyName
-      this.data.studentName = data.studentName
-      this.data.studentNo = data.studentNo
-      this.data.studentId = data.studentId
+      this.data.className = data.className ? data.className : ""
+      this.data.facultyName = data.facultyName ? data.facultyName : ""
+      this.data.studentName = data.studentName ? data.studentName : ""
+      this.data.studentNo = data.studentNo ? data.studentNo : ""
+      this.data.studentId = data.studentId ? data.studentId : ""
     },
 
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         let arg = {}
 
-        arg.studentId = this.formData.studentId
-        arg.stufileNo = this.type === 1 ? this.formData.stufileNo : this.formData.stufileNo + this.studentNo
-        arg.recipient = this.formData.recipient
-        arg.schoolCode = this.formData.schoolCode
-        ;(arg.stufileDate = new Date(this.formData.stufileDate).getTime()),
-          (arg.stufileDescription = this.formData.stufileDescription)
+        arg.stufileNo =
+          this.type === 1
+            ? this.data.stufileNo
+            : this.data.stufileNo + this.studentNo
+        arg.recipient = this.data.recipient
+        arg.schoolCode = this.data.schoolCode
+        ;(arg.stufileDate = new Date(this.data.stufileDate).getTime()),
+          (arg.stufileDescription = this.data.stufileDescription)
         arg.status = 1
 
         let stufileListList = []
         this.fileList.forEach((item, index) => {
           if (item.stufilePath) {
-            // if (this.type === 1) {
-              stufileListList.push({
-                listUid: item.listUid,
-                stufileUid: item.stufileUid,
-                stufilePath: item.stufilePath,
-                swmsStufileSetting: item.swmsStufileSetting,
-                stufilesettingUid: item.stufilesettingUid,
-
-              })
-            // }
-
-            // if (this.type === 2) {
-            //   stufileListList.push({
-            //     stufilesettingUid: item.stufilesettingUid,
-            //     stufilePath: item.stufilePath
-            //   })
-            // }
+            stufileListList.push({
+              listUid: item.listUid,
+              stufileUid: item.stufileUid,
+              stufilePath: item.stufilePath,
+              swmsStufileSetting: item.swmsStufileSetting,
+              stufilesettingUid: item.stufilesettingUid
+            })
           }
         })
 
@@ -265,21 +324,24 @@ export default {
             .then(response => {
               if (response && valid) {
                 // 验证通过后提交表单数据
-                  stufileManageAPI
-                    .create(arg)
-                    .then(response => {
-                      if (response.code === 1) {
-                        this.$alert("添加成功")
-                        this.resetValidate()
-                        this.$emit("close")
-                      } else {
-                        this.$alert(response.message)
-                      }
-                    })
-                    .catch(error => {
-                      console.log(error)
-                    })
-              
+
+                arg.studentNo = this.data.studentNo
+                arg.studentId = this.data.studentId
+
+                stufileManageAPI
+                  .create(arg)
+                  .then(response => {
+                    if (response.code === 1) {
+                      this.$alert("添加成功")
+                      this.resetValidate()
+                      this.$emit("close")
+                    } else {
+                      this.$alert(response.message)
+                    }
+                  })
+                  .catch(error => {
+                    console.log(error)
+                  })
               }
             })
             .catch(error => {
